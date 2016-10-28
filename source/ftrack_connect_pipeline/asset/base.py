@@ -1,7 +1,54 @@
 import functools
 
+import ftrack_api
+
 import ftrack_connect_pipeline.util
 import ftrack_connect_pipeline.ui.publish_dialog
+
+
+def wrap_with_events(original_function, event_fragment, session):
+    '''Return wrapped *original_function* and fire before and after events.
+
+    Events will be emmitted on *session* before and after *original_function*
+    is called. The event topic will be generated based on *event_fragment* as::
+
+        ftrack.pipeline.{event_fragment}-before
+        ftrack.pipeline.{event_fragment}-after
+
+    '''
+
+    event_template = 'ftrack.pipeline.{0}-{1}'
+
+    def wrapper(*args, **kwargs):
+        results = session.event_hub.publish(
+            ftrack_api.event.base.Event(
+                topic=event_template.format(event_fragment, 'before'),
+                data=dict(
+                    arguments=args,
+                    keyword_arguments=kwargs
+                )
+            ),
+            synchronous=True
+        )
+        for result in results:
+            if result:
+                return result
+
+        returned_value = original_function(*args, **kwargs)
+
+        session.event_hub.publish(
+            ftrack_api.event.base.Event(
+                topic=event_template.format(event_fragment, 'after'),
+                data=dict(
+                    result=returned_value
+                )
+            ),
+            synchronous=True
+        )
+
+        return returned_value
+
+    return wrapper
 
 
 def open_publish_dialog(publish_asset):
@@ -60,6 +107,32 @@ class Asset(object):
                 self.identifier
             ),
             self.launch_publish
+        )
+
+        self.publish_asset.prepare_publish = wrap_with_events(
+            self.publish_asset.prepare_publish,
+            'prepare-publish',
+            session
+        )
+        self.publish_asset.get_options = wrap_with_events(
+            self.publish_asset.get_options,
+            'get-options',
+            session
+        )
+        self.publish_asset.get_item_options = wrap_with_events(
+            self.publish_asset.get_item_options,
+            'get-item-options',
+            session
+        )
+        self.publish_asset.get_publish_items = wrap_with_events(
+            self.publish_asset.get_publish_items,
+            'get-publish-items',
+            session
+        )
+        self.publish_asset.publish = wrap_with_events(
+            self.publish_asset.publish,
+            'publish',
+            session
         )
 
 
