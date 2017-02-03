@@ -136,9 +136,16 @@ def set_ftrack_entity(entity_id):
 def get_ftrack_entity():
     '''Return current ftrack entity.'''
     session = get_session()
-    ftrack_entity = session.get(
-        'Context', os.environ['FTRACK_CONTEXT_ID']
+    query = (
+        'select id, name, parent, parent.name, parent.id,'
+        ' parent.parent, parent.parent.name, parent.parent.id'
+        ' from Context where id is "{0}"'.format(
+            os.environ['FTRACK_CONTEXT_ID']
+        )
     )
+
+    ftrack_entity = session.query(query).one()
+
     return ftrack_entity
 
 
