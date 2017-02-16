@@ -392,8 +392,7 @@ class ContextSelector(QtWidgets.QFrame):
         super(ContextSelector, self).__init__(parent=parent)
         self.setObjectName('context-selector-widget')
         self._entity = currentEntity
-        self.entityBrowser = EntityBrowser()
-        self.entityBrowser.setMinimumWidth(600)
+
         self.entityPath = EntityPath()
 
         self.entityBrowseButton = QtWidgets.QPushButton('Change')
@@ -412,9 +411,7 @@ class ContextSelector(QtWidgets.QFrame):
             self._onEntityBrowseButtonClicked
         )
         self.entityChanged.connect(self.entityPath.setEntity)
-        self.entityBrowser.selectionChanged.connect(
-            self._onEntityBrowserSelectionChanged
-        )
+
         self.setEntity(self._entity)
 
     def reset(self, entity=None):
@@ -431,6 +428,12 @@ class ContextSelector(QtWidgets.QFrame):
     def _onEntityBrowseButtonClicked(self):
         '''Handle entity browse button clicked.'''
         # Ensure browser points to parent of currently selected entity.
+        self.entityBrowser = EntityBrowser()
+        self.entityBrowser.setMinimumWidth(600)
+        self.entityBrowser.selectionChanged.connect(
+            self._onEntityBrowserSelectionChanged
+        )
+
         if self._entity is not None:
             location = []
             try:
