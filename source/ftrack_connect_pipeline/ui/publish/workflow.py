@@ -12,6 +12,7 @@ from ftrack_api.event.base import Event
 
 from ftrack_connect_pipeline.ui.widget.overlay import BusyOverlay
 from ftrack_connect_pipeline.ui.widget.overlay import Overlay
+from ftrack_connect_pipeline.ui.widget.field import textarea
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 from ftrack_connect_pipeline.ui import resource
@@ -193,11 +194,16 @@ class PublishResult(Overlay):
         '''Instantiate publish result overlay.'''
         super(PublishResult, self).__init__(parent=parent)
         self.session = session
+        self.activeWidget = None
+        self.setLayout(QtWidgets.QVBoxLayout())
 
     def create_overlay_widgets(self, congrat_text, success_text):
         '''Create overlay widgets to report publish result.'''
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
+
+        self.activeWidget = QtWidgets.QWidget()
+        self.activeWidget.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addWidget(self.activeWidget)
+        main_layout = self.activeWidget.layout()
 
         icon = QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor')
         icon = icon.scaled(
@@ -235,7 +241,7 @@ class PublishResult(Overlay):
         if self.details_window_callback is None:
             self.details_button.setDisabled(True)
 
-        self.open_in_ftrack = QtWidgets.QPushButton('Open In Ftrack')
+        self.open_in_ftrack = QtWidgets.QPushButton('Open in ftrack')
         buttons_layout.addWidget(self.open_in_ftrack)
         self.open_in_ftrack.clicked.connect(self.on_open_in_ftrack)
 
@@ -247,8 +253,10 @@ class PublishResult(Overlay):
         congrat_text = '<h2>Validation Failed!</h2>'
         success_text = 'Your <b>{0}</b> failed to validate.'.format(label)
 
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
+        self.activeWidget = QtWidgets.QWidget()
+        self.activeWidget.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addWidget(self.activeWidget)
+        main_layout = self.activeWidget.layout()
 
         main_layout.addStretch(1)
 
@@ -321,14 +329,25 @@ class PublishResult(Overlay):
         buttons_layout.addWidget(self.details_button)
         self.details_button.clicked.connect(self.on_show_details)
 
+        self.close_button = QtWidgets.QPushButton('Close')
+        buttons_layout.addWidget(self.close_button)
+        self.close_button.clicked.connect(self.close_window_callback)
+
         if self.details_window_callback is None:
             self.details_button.setDisabled(True)
 
     def populate(
-        self, label, details_window_callback, result
+        self, label, details_window_callback, close_window_callback, result
     ):
         '''Populate with content.'''
+
+        if self.activeWidget:
+            self.layout().removeWidget(self.activeWidget)
+            self.activeWidget.setParent(None)
+            self.activeWidget = None
+
         self.details_window_callback = details_window_callback
+        self.close_window_callback = close_window_callback
 
         self.asset_version = result.get('asset_version', None)
         success = result['success']
@@ -400,10 +419,45 @@ class ListItemsWidget(QtWidgets.QListWidget):
         '''Instanstiate and generate list from *items*.'''
         super(ListItemsWidget, self).__init__()
         self.setObjectName('ftrack-list-widget')
-
         for item in items:
             item = SelectableItemWidget(item)
             self.addItem(item)
+
+    def paintEvent(self, event):
+        '''Draw placeholder text.'''
+        root_index = self.rootIndex()
+        model = self.model()
+
+        if model and model.rowCount(root_index):
+            super(ListItemsWidget, self).paintEvent(event)
+        else:
+            painter = QtGui.QPainter(self.viewport())
+            rect = self.rect()
+            painter.drawText(
+                rect,
+                QtCore.Qt.AlignCenter,
+                'No items found to publish'
+            )
+
+    def get_checked_items(self):
+        '''Return checked items.'''
+        checked_items = []
+        for index in xrange(self.count()):
+            widget_item = self.item(index)
+            if widget_item.checkState() is QtCore.Qt.Checked:
+                checked_items.append(widget_item.item())
+
+        return checked_items
+
+    def update_selection(self, new_selection):
+        '''Update selection from *new_selection*.'''
+        for index in xrange(self.count()):
+            widget_item = self.item(index)
+            item = widget_item.item()
+            should_select = item['name'] in new_selection
+            widget_item.setCheckState(
+                QtCore.Qt.Checked if should_select else QtCore.Qt.Unchecked
+            )
 
     def get_checked_items(self):
         '''Return checked items.'''
@@ -441,6 +495,7 @@ class ActionSettingsWidget(QtWidgets.QWidget):
             label = option.get('label', '')
             name = option['name']
             value = option.get('value')
+            empty_text = option.get('empty_text')
             if name in data_dict.get('options', {}):
                 value = data_dict['options'][name]
 
@@ -480,17 +535,17 @@ class ActionSettingsWidget(QtWidgets.QWidget):
                 )
 
             if type_ == 'textarea':
-                field = QtWidgets.QTextEdit()
+                field = textarea.TextAreaField(empty_text or '')
                 if value is not None:
                     field.setPlainText(unicode(value))
 
-                field.textChanged.connect(
+                field.value_changed.connect(
                     functools.partial(
                         self.update_on_change,
                         data_dict,
                         field,
                         name,
-                        lambda text_area: text_area.toPlainText()
+                        lambda textarea_widget: textarea_widget.value()
                     )
                 )
 
@@ -804,7 +859,6 @@ class Workflow(QtWidgets.QWidget):
             self.general_options_store,
             selected_item_names
         )
-
         self._publish_overlay.setVisible(False)
 
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
@@ -815,8 +869,14 @@ class Workflow(QtWidgets.QWidget):
             details_window_callback=getattr(
                 self.publish_asset, 'show_detailed_result', None
             ),
+            close_window_callback=self.on_close_callback,
             result=result
         )
+
+    def on_close_callback(self):
+        '''Handle close callback.'''
+        self.result_win.setVisible(False)
+        self.publish_asset.prepare_publish()
 
     def _on_sync_scene_selection(self):
         '''Handle sync scene selection event.'''
