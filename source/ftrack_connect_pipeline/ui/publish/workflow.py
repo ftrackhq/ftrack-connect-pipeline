@@ -16,6 +16,7 @@ from ftrack_connect_pipeline.ui.widget.field import textarea
 from ftrack_connect_pipeline.ui.usage import send_event as send_usage
 from ftrack_connect_pipeline.ui.style import OVERLAY_DARK_STYLE
 from ftrack_connect_pipeline.ui import resource
+from ftrack_connect_pipeline import util
 
 import ftrack_connect_pipeline.util
 
@@ -845,10 +846,23 @@ class Workflow(QtWidgets.QWidget):
             item_settings_widget.setParent(None)
 
     def on_publish_clicked(self):
+        self._publish_worker = util.Worker(self._publish)
+        self._publish_worker.finished.connect(self._publish_overlay.hide)
+        self._publish_worker.finished.connect(self._publish_done)
+        self._publish_overlay.show()
+
+        self._publish_worker.start()
+        while self._publish_worker.isRunning():
+            app = QtGui.QApplication.instance()
+            app.processEvents()
+
+        if self._publish_worker.error:
+            print self._publish_worker.error
+
+        self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
+
+    def _publish(self):
         '''Handle publish clicked event.'''
-        self._publish_overlay.setVisible(True)
-        app = QtWidgets.QApplication.instance()
-        app.processEvents()
 
         selected_item_names = []
         for item in self.list_items_view.get_checked_items():
@@ -859,10 +873,10 @@ class Workflow(QtWidgets.QWidget):
             self.general_options_store,
             selected_item_names
         )
-        self._publish_overlay.setVisible(False)
+        return result
 
-        self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
-
+    def _publish_done(self):
+        result = self._publish_worker.result
         self.result_win.setVisible(True)
         self.result_win.populate(
             label=self._label_text,
