@@ -5,6 +5,7 @@ import sys
 import functools
 import time
 import webbrowser
+import logging
 
 from QtExt import QtGui, QtCore, QtWidgets
 
@@ -670,6 +671,11 @@ class Workflow(QtWidgets.QWidget):
     ):
         '''Display instances that can be published.'''
         super(Workflow, self).__init__()
+
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+
         self.setObjectName('ftrack-workflow-widget')
         self.session = session
         self._label_text = label
@@ -857,7 +863,7 @@ class Workflow(QtWidgets.QWidget):
             app.processEvents()
 
         if self._publish_worker.error:
-            print self._publish_worker.error
+            self.logger.error(self._publish_worker.error)
 
         self._hideOverlayAfterTimeout(self.OVERLAY_MESSAGE_TIMEOUT)
 
@@ -876,7 +882,6 @@ class Workflow(QtWidgets.QWidget):
         return result
 
     def _publish_done(self):
-        result = self._publish_worker.result
         self.result_win.setVisible(True)
         self.result_win.populate(
             label=self._label_text,
@@ -884,7 +889,7 @@ class Workflow(QtWidgets.QWidget):
                 self.publish_asset, 'show_detailed_result', None
             ),
             close_window_callback=self.on_close_callback,
-            result=result
+            result=self._publish_worker.result
         )
 
     def on_close_callback(self):
