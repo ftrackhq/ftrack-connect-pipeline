@@ -201,7 +201,7 @@ setup(
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3',
-        'PySide == 1.2.2',
+        'PySide >= 1.2.4',
         'ftrack-python-api'
     ],
     cmdclass={
