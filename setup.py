@@ -202,8 +202,7 @@ setup(
     tests_require=[
         'pytest >= 2.3.5, < 3',
         'PySide == 1.2.2',
-        'ftrack-python-api',
-        'pyblish-base'
+        'ftrack-python-api'
     ],
     cmdclass={
         'build': Build,

@@ -4,6 +4,3 @@
 from .base import (
     Asset, ImportAsset, PublishAsset
 )
-from .pyblish_asset import (
-    PyblishAsset
-)
