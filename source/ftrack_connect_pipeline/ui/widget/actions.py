@@ -318,7 +318,7 @@ class Actions(QtWidgets.QFrame):
 
         results = ftrack.EVENT_HUB.publish(
             ftrack.Event(
-                topic='topic={0}'.format(constant.DISCOVER_PUBLISHER_TOPIC),
+                topic='topic={0}'.format(constant.DISCOVER_PIPELINE_ACTION_TOPIC),
                 data=dict(
                     selection=context
                 )
@@ -336,7 +336,7 @@ class Actions(QtWidgets.QFrame):
         session = self._session
         results = session.event_hub.publish(
             ftrack_api.event.base.Event(
-                topic='topic={0}'.format(constant.DISCOVER_PUBLISHER_TOPIC),
+                topic='topic={0}'.format(constant.DISCOVER_PIPELINE_ACTION_TOPIC),
                 data=dict(
                     selection=context
                 )

@@ -12,7 +12,7 @@ ASSET_OPTION_NAME = 'asset'
 
 
 # EVENTS
-DISCOVER_PUBLISHER_TOPIC = 'ftrack.pipeline.publisher.discover'
-LAUNCH_PUBLISHER_TOPIC = 'ftrack.pipeline.publisher.launch'
-REGISTER_ASSET_TOPIC = 'ftrack.pipeline.register-assets'
+DISCOVER_PIPELINE_ACTION_TOPIC = 'ftrack.pipeline.action.discover'
+LAUNCH_PIPELINE_ACTION_TOPIC = 'ftrack.pipeline.action.launch'
+REGISTER_ASSET_TOPIC = 'ftrack.pipeline.assets.register'
 CONTEXT_CHANGED_TOPIC = 'ftrack.context-changed'

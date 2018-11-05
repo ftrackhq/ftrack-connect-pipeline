@@ -160,7 +160,7 @@ class ActionItem(QtWidgets.QFrame):
                 session = self._session
                 results = session.event_hub.publish(
                     ftrack_api.event.base.Event(
-                        topic=constant.LAUNCH_PUBLISHER_TOPIC,
+                        topic=constant.LAUNCH_PIPELINE_ACTION_TOPIC,
                         data=action
                     ),
                     synchronous=True
@@ -168,7 +168,7 @@ class ActionItem(QtWidgets.QFrame):
             else:
                 results = ftrack.EVENT_HUB.publish(
                     ftrack.Event(
-                        topic=constant.LAUNCH_PUBLISHER_TOPIC,
+                        topic=constant.LAUNCH_PIPELINE_ACTION_TOPIC,
                         data=action
                     ),
                     synchronous=True
