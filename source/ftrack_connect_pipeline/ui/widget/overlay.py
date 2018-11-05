@@ -50,83 +50,83 @@ class Overlay(QtWidgets.QFrame):
                         break
 
         super(Overlay, self).setVisible(visible)
-
-    def eventFilter(self, obj, event):
-        '''Filter *event* sent to *obj*.
-
-        Maintain sizing of this overlay to match parent widget.
-
-        Disable parent widget of this overlay receiving interaction events
-        while this overlay is active.
-
-        '''
-        # Match sizing of parent.
-        if obj == self.parent():
-            if event.type() == QtCore.QEvent.Resize:
-                # Relay event.
-                self.resize(event.size())
-
-        # Prevent interaction events reaching parent and its child widgets
-        # while this overlay is visible. To do this, intercept appropriate
-        # events (currently focus events) and handle them by skipping child
-        # widgets of the target parent. This prevents the user from tabbing
-        # into a widget that is currently overlaid.
-        #
-        # Note: Previous solutions attempted to use a simpler method of setting
-        # the overlaid widget to disabled. This doesn't work because the overlay
-        # itself is a child of the overlaid widget and Qt does not allow a child
-        # of a disabled widget to be enabled. Attempting to manage manually the
-        # enabled state of each child grows too complex as have to remember the
-        # initial state of each widget when the overlay is shown and then revert
-        # to it on hide.
-        if (
-            self.isVisible()
-            and obj != self
-            and event.type() == QtCore.QEvent.FocusIn
-        ):
-            parent = self.parent()
-            if (
-                isinstance(obj, QtWidgets.QWidget)
-                and parent.isAncestorOf(obj)
-            ):
-                # Ensure the targeted object loses its focus.
-                obj.clearFocus()
-
-                # Loop through available widgets to move focus to. If an
-                # available widget is not a child of the parent widget targeted
-                # by this overlay then move focus to it, respecting requested
-                # focus direction.
-                seen = []
-                candidate = obj
-                reason = event.reason()
-
-                while True:
-                    if reason == QtCore.Qt.TabFocusReason:
-                        candidate = candidate.nextInFocusChain()
-                    elif reason == QtCore.Qt.BacktabFocusReason:
-                        candidate = candidate.previousInFocusChain()
-                    else:
-                        break
-
-                    if candidate in seen:
-                        # No other widget available for focus.
-                        break
-
-                    # Keep track of candidates to avoid infinite recursion.
-                    seen.append(candidate)
-
-                    if (
-                        isinstance(candidate, QtGui.QWidget)
-                        and not parent.isAncestorOf(candidate)
-                    ):
-                        candidate.setFocus(event.reason())
-                        break
-
-                # Swallow event.
-                return True
-
-        # Let event propagate.
-        return False
+    #
+    # def eventFilter(self, obj, event):
+    #     '''Filter *event* sent to *obj*.
+    #
+    #     Maintain sizing of this overlay to match parent widget.
+    #
+    #     Disable parent widget of this overlay receiving interaction events
+    #     while this overlay is active.
+    #
+    #     '''
+    #     # Match sizing of parent.
+    #     if obj == self.parent():
+    #         if event.type() == QtCore.QEvent.Resize:
+    #             # Relay event.
+    #             self.resize(event.size())
+    #
+    #     # Prevent interaction events reaching parent and its child widgets
+    #     # while this overlay is visible. To do this, intercept appropriate
+    #     # events (currently focus events) and handle them by skipping child
+    #     # widgets of the target parent. This prevents the user from tabbing
+    #     # into a widget that is currently overlaid.
+    #     #
+    #     # Note: Previous solutions attempted to use a simpler method of setting
+    #     # the overlaid widget to disabled. This doesn't work because the overlay
+    #     # itself is a child of the overlaid widget and Qt does not allow a child
+    #     # of a disabled widget to be enabled. Attempting to manage manually the
+    #     # enabled state of each child grows too complex as have to remember the
+    #     # initial state of each widget when the overlay is shown and then revert
+    #     # to it on hide.
+    #     if (
+    #         self.isVisible()
+    #         and obj != self
+    #         and event.type() == QtCore.QEvent.FocusIn
+    #     ):
+    #         parent = self.parent()
+    #         if (
+    #             isinstance(obj, QtWidgets.QWidget)
+    #             and parent.isAncestorOf(obj)
+    #         ):
+    #             # Ensure the targeted object loses its focus.
+    #             obj.clearFocus()
+    #
+    #             # Loop through available widgets to move focus to. If an
+    #             # available widget is not a child of the parent widget targeted
+    #             # by this overlay then move focus to it, respecting requested
+    #             # focus direction.
+    #             seen = []
+    #             candidate = obj
+    #             reason = event.reason()
+    #
+    #             while True:
+    #                 if reason == QtCore.Qt.TabFocusReason:
+    #                     candidate = candidate.nextInFocusChain()
+    #                 elif reason == QtCore.Qt.BacktabFocusReason:
+    #                     candidate = candidate.previousInFocusChain()
+    #                 else:
+    #                     break
+    #
+    #                 if candidate in seen:
+    #                     # No other widget available for focus.
+    #                     break
+    #
+    #                 # Keep track of candidates to avoid infinite recursion.
+    #                 seen.append(candidate)
+    #
+    #                 if (
+    #                     isinstance(candidate, QtGui.QWidget)
+    #                     and not parent.isAncestorOf(candidate)
+    #                 ):
+    #                     candidate.setFocus(event.reason())
+    #                     break
+    #
+    #             # Swallow event.
+    #             return True
+    #
+    #     # Let event propagate.
+    #     return False
 
 
 class BlockingOverlay(Overlay):
