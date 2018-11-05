@@ -56,12 +56,12 @@ class Asset(object):
         self._session = session
 
         self._session.event_hub.subscribe(
-            'topic=ftrack.action.discover',
+            'topic=ftrack.publisher.discover',
             self.discover_publish
         )
 
         self._session.event_hub.subscribe(
-            'topic=ftrack.action.launch and data.actionIdentifier={0}'.format(
+            'topic=ftrack.publisher.launch and data.actionIdentifier={0}'.format(
                 self.identifier
             ),
             self.launch_publish
