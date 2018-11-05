@@ -28,7 +28,7 @@ class Overlay(QtWidgets.QFrame):
         # Install global event filter that will deal with matching parent size
         # and disabling parent interaction when overlay is visible.
         application = QtCore.QCoreApplication.instance()
-        application.installEventFilter(self)
+        # application.installEventFilter(self)
 
     def setVisible(self, visible):
         '''Set whether *visible* or not.'''
