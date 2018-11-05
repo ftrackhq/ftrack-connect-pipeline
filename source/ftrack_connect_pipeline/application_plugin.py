@@ -6,6 +6,7 @@ import logging
 
 import ftrack_api
 import ftrack_api.event.base
+from ftrack_connect_pipeline import constant
 
 
 class BaseApplicationPlugin(object):
@@ -36,7 +37,7 @@ class BaseApplicationPlugin(object):
         self.logger.info('Registering assets.')
         result = self.api_session.event_hub.publish(
             ftrack_api.event.base.Event(
-                topic='ftrack.pipeline.register-assets',
+                topic=constant.REGISTER_ASSET_TOPIC,
                 data=dict()
             ),
             synchronous=True
@@ -53,7 +54,7 @@ class BaseApplicationPlugin(object):
         old_context_id = self._context_id
         self._context_id = context_id
         event = ftrack_api.event.base.Event(
-            topic='ftrack.context-changed',
+            topic=constant.CONTEXT_CHANGED_TOPIC,
             data={'context_id': context_id, 'old_context_id': old_context_id}
         )
         self.api_session.event_hub.publish(event, synchronous=True)

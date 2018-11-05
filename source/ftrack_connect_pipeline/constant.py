@@ -9,3 +9,10 @@ REVIEWABLE_OPTION_NAME = 'reviewable_component'
 
 ASSET_VERSION_COMMENT_OPTION_NAME = 'comment'
 ASSET_OPTION_NAME = 'asset'
+
+
+# EVENTS
+DISCOVER_PUBLISHER_TOPIC = 'ftrack.pipeline.publisher.discover'
+LAUNCH_PUBLISHER_TOPIC = 'ftrack.pipeline.publisher.launch'
+REGISTER_ASSET_TOPIC = 'ftrack.pipeline.register-assets'
+CONTEXT_CHANGED_TOPIC = 'ftrack.context-changed'

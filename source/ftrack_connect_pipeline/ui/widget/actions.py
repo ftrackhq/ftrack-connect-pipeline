@@ -12,6 +12,7 @@ import ftrack
 import ftrack_api.event.base
 
 import ftrack_connect_pipeline.util
+from ftrack_connect_pipeline import constant
 
 from ftrack_connect_pipeline.ui.widget import (
     action_item, flow_layout, overlay as overlay_
@@ -317,7 +318,7 @@ class Actions(QtWidgets.QFrame):
 
         results = ftrack.EVENT_HUB.publish(
             ftrack.Event(
-                topic='ftrack.action.discover',
+                topic='topic={0}'.format(constant.DISCOVER_PUBLISHER_TOPIC),
                 data=dict(
                     selection=context
                 )
@@ -335,7 +336,7 @@ class Actions(QtWidgets.QFrame):
         session = self._session
         results = session.event_hub.publish(
             ftrack_api.event.base.Event(
-                topic='ftrack.action.discover',
+                topic='topic={0}'.format(constant.DISCOVER_PUBLISHER_TOPIC),
                 data=dict(
                     selection=context
                 )
