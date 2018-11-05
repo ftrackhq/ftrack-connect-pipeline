@@ -109,7 +109,10 @@ class Dialog(QtWidgets.QDialog):
             )
 
         result = results.pop()
-        publish_asset = result['publish_asset']
+        publish_asset = result.get('publish_asset')
+        if not publish_asset:
+            return
+
         ftrack_connect_pipeline.util.invoke_in_main_thread(
             self.set_active_workflow,
             action['label'], publish_asset
