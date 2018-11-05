@@ -180,14 +180,14 @@ class Actions(QtWidgets.QFrame):
         self._overlay.indicator.stop()
         self._overlay.indicator.hide()
         self._overlay.setMessage(message)
-        self._hideOverlayAfterTimeout(self.ACTION_LAUNCH_MESSAGE_TIMEOUT)
+        # self._hideOverlayAfterTimeout(self.ACTION_LAUNCH_MESSAGE_TIMEOUT)
 
-    def _hideOverlayAfterTimeout(self, timeout):
-        '''Hide overlay after *timeout* seconds.'''
-        QtCore.QTimer.singleShot(
-            timeout * 1000,
-            functools.partial(self._overlay.setVisible, False)
-        )
+    # def _hideOverlayAfterTimeout(self, timeout):
+    #     '''Hide overlay after *timeout* seconds.'''
+    #     QtCore.QTimer.singleShot(
+    #         timeout * 1000,
+    #         functools.partial(self._overlay.setVisible, False)
+    #     )
 
     def _onEntityChanged(self, entity):
         '''Load new actions when the context has changed'''
