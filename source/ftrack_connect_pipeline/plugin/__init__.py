@@ -183,3 +183,4 @@ class ContextWidget(BaseWidget):
 
 from ftrack_connect_pipeline.plugin.load import *
 from ftrack_connect_pipeline.plugin.publish import *
+from ftrack_connect_pipeline.plugin.definition import *
