@@ -1,5 +1,6 @@
 import logging
 from qtpy import QtWidgets, QtCore, QtGui
+from ftrack_connect_pipeline import constants
 
 
 class AccordionWidget(QtWidgets.QWidget):
@@ -9,15 +10,26 @@ class AccordionWidget(QtWidgets.QWidget):
         self._is_collasped = True
         self._title_frame = None
         self._content, self._content_layout = (None, None)
+        self._title = title
 
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def set_status(self, status, message):
+        self._title_frame._status.set_status(status, message)
+
+    def pre_build(self):
         self._main_v_layout = QtWidgets.QVBoxLayout(self)
 
-        title_widget = self.initTitleFrame(title, self._is_collasped)
+    def build(self):
+        title_widget = self.initTitleFrame(self._title, self._is_collasped)
         self._main_v_layout.addWidget(title_widget)
 
         content_widget = self.initContent(self._is_collasped)
         self._main_v_layout.addWidget(content_widget)
 
+    def post_build(self):
         self.initCollapsable()
 
     def initTitleFrame(self, title, collapsed):
@@ -48,12 +60,14 @@ class AccordionWidget(QtWidgets.QWidget):
 
 
 class AccordionTitleWidget(QtWidgets.QFrame):
+    clicked = QtCore.Signal()
+
     def __init__(self, parent=None, title="", collapsed=False):
         super(AccordionTitleWidget, self).__init__(parent=parent)
 
         self.setMinimumHeight(24)
         self.move(QtCore.QPoint(24, 0))
-        self.setStyleSheet("border:1px solid rgb(41, 41, 41); ")
+        # self.setStyleSheet("border:1px solid rgb(41, 41, 41); ")
 
         self._hlayout = QtWidgets.QHBoxLayout(self)
         self._hlayout.setContentsMargins(0, 0, 0, 0)
@@ -61,9 +75,15 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
         self._arrow = None
         self._title = None
+        self._status = None
 
-        self._hlayout.addWidget(self.initArrow(collapsed))
         self._hlayout.addWidget(self.initTitle(title))
+        self._hlayout.addWidget(self.initStatus())
+        self._hlayout.addWidget(self.initArrow(collapsed))
+
+    def initStatus(self):
+        self._status = Status()
+        return self._status
 
     def initArrow(self, collapsed):
         self._arrow = Arrow(collapsed=collapsed)
@@ -81,9 +101,23 @@ class AccordionTitleWidget(QtWidgets.QFrame):
 
     def mousePressEvent(self, event):
         self.clicked.emit()
-        # self.emit(QtCore.SIGNAL('clicked()'))
-
         return super(AccordionTitleWidget, self).mousePressEvent(event)
+
+
+class Status(QtWidgets.QLabel):
+    status_icons = constants.icons.status_icons
+
+    def __init__(self, parent=None):
+        super(Status, self).__init__(parent=parent)
+        icon = self.status_icons[constants.DEFAULT_STATUS]
+        self.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
+        self.setPixmap(icon)
+
+    def set_status(self, status, message=None):
+        icon = self.status_icons[status]
+        self.setPixmap(icon)
+        if message:
+            self.setToolTip(str(message))
 
 
 class Arrow(QtWidgets.QFrame):
