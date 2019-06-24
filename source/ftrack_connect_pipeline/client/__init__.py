@@ -205,6 +205,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.combo)
         self.task_layout = QtWidgets.QVBoxLayout()
         self.layout().addLayout(self.task_layout)
+        self.layout().addStretch()
         self.run_button = QtWidgets.QPushButton('Run')
         self.layout().addWidget(self.run_button)
 
@@ -311,7 +312,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         result.status_updated.connect(self.on_widget_status_updated)
 
-        accordion = AccordionWidget(title=plugin_name)
+        accordion = AccordionWidget(title=result.name)
         accordion.addWidget(result)
 
         return accordion

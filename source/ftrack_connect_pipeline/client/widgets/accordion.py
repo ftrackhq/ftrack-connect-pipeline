@@ -22,10 +22,11 @@ class AccordionWidget(QtWidgets.QWidget):
 
     def set_status(self, status, message):
         self._title_frame._status.set_status(status, message)
-        self._reference_widget.set_status(status, message)
 
     def pre_build(self):
         self._main_v_layout = QtWidgets.QVBoxLayout(self)
+        self._main_v_layout.setAlignment(QtCore.Qt.AlignTop)
+        self._main_v_layout.setContentsMargins(0, 0, 0, 0)
 
     def build(self):
         title_widget = self.initTitleFrame(self._title, self._is_collasped)
