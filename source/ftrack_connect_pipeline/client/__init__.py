@@ -12,6 +12,7 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline.client.widgets import BaseWidget
+from ftrack_connect_pipeline.client.widgets.accordion import AccordionWidget
 from ftrack_connect_pipeline.session import get_shared_session
 from ftrack_connect_pipeline.ui.widget import header
 
@@ -310,7 +311,10 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         result.status_updated.connect(self.on_widget_status_updated)
 
-        return result
+        accordion = AccordionWidget(title=plugin_name)
+        accordion.addWidget(result)
+
+        return accordion
 
     def on_widget_status_updated(self, data):
         status, message = data

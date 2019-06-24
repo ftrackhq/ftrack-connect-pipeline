@@ -7,6 +7,7 @@ class AccordionWidget(QtWidgets.QWidget):
     def __init__(self, parent=None, title=None):
         super(AccordionWidget, self).__init__(parent=parent)
 
+        self._reference_widget = None
         self._is_collasped = True
         self._title_frame = None
         self._content, self._content_layout = (None, None)
@@ -16,8 +17,12 @@ class AccordionWidget(QtWidgets.QWidget):
         self.build()
         self.post_build()
 
+    def get_option_results(self):
+        return self._reference_widget.get_option_results()
+
     def set_status(self, status, message):
         self._title_frame._status.set_status(status, message)
+        self._reference_widget.set_status(status, message)
 
     def pre_build(self):
         self._main_v_layout = QtWidgets.QVBoxLayout(self)
@@ -49,6 +54,8 @@ class AccordionWidget(QtWidgets.QWidget):
 
     def addWidget(self, widget):
         self._content_layout.addWidget(widget)
+        self._reference_widget = widget
+        widget.status_updated.connect(self.set_status)
 
     def initCollapsable(self):
         self._title_frame.clicked.connect(self.toggleCollapsed)
