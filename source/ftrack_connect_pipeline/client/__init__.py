@@ -192,6 +192,12 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
+        # self.scroll = QtWidgets.QScrollArea()
+        # self.scroll.setWidgetResizable(True)
+        # self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        # self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        # self.scroll.setWidget(self)
+
         self.combo_hosts = QtWidgets.QComboBox()
         self.layout().addWidget(self.combo_hosts)
         self.combo_hosts.addItem('- Select host -')
