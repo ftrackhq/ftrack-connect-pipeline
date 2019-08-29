@@ -10,6 +10,7 @@ from qtpy import QtCore
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import schema
+from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline.event import EventManager
 
 logger = logging.getLogger(__name__)
@@ -21,17 +22,17 @@ class BaseDefinitionManager(object):
         '''Return the result definitions.'''
         return self.__registry
 
-    def __init__(self, session, host, schema_type, validator):
+    def __init__(self, event_manager, schema_type, validator):
         '''Initialise the class with ftrack *session* and *context_type*'''
         super(BaseDefinitionManager, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.host = host
         self.__registry = {}
-        self.session = session
-        self.event_manager = EventManager(self.session)
+        self.event_manager = event_manager
+        self.session = self.event_manager.session
+
         self._validator = validator
         self._schema_type = schema_type
         self.register(schema_type)
@@ -78,7 +79,7 @@ class BaseDefinitionManager(object):
             data={
                 'pipeline': {
                     'type': str(schema_type),
-                    'host': self.host
+                    'host': self.event_manager.host
                 }
             }
         )
@@ -98,7 +99,7 @@ class BaseDefinitionManager(object):
                 'plugin_name': plugin_name,
                 'plugin_type': plugin_type,
                 'type': 'plugin',
-                'host': self.host
+                'host': self.event_manager.host
             }
         }
 
@@ -121,9 +122,9 @@ class BaseDefinitionManager(object):
 class PackageDefinitionManager(BaseDefinitionManager):
     '''Package schema manager class.'''
 
-    def __init__(self, session, host):
+    def __init__(self, event_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PackageDefinitionManager, self).__init__(session, host, 'package', schema.validate_package)
+        super(PackageDefinitionManager, self).__init__(event_manager, 'package', schema.validate_package)
 
 
 class LoaderDefinitionManager(BaseDefinitionManager):
@@ -133,11 +134,10 @@ class LoaderDefinitionManager(BaseDefinitionManager):
         '''return available packages definitions.'''
         return self.package_manager.result()
 
-    def __init__(self, package_manager, host):
+    def __init__(self, package_manager, event_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(LoaderDefinitionManager, self).__init__(package_manager.session, host, 'loader', schema.validate_loader)
+        super(LoaderDefinitionManager, self).__init__(event_manager, 'loader', schema.validate_loader)
         self.package_manager = package_manager
-        self.host = host
 
     def validate(self, data):
         schema_validation = super(LoaderDefinitionManager, self).validate(data)
@@ -152,11 +152,10 @@ class PublisherDefinitionManager(BaseDefinitionManager):
         '''return available packages definitions.'''
         return self.package_manager.result()
 
-    def __init__(self, package_manager, host):
+    def __init__(self,  package_manager, event_manager):
         '''Initialise the class with ftrack *session* and *context_type*'''
-        super(PublisherDefinitionManager, self).__init__(package_manager.session, host, 'publisher', schema.validate_publisher)
+        super(PublisherDefinitionManager, self).__init__(event_manager, 'publisher', schema.validate_publisher)
         self.package_manager = package_manager
-        self.host = host
 
     def validate_plugins(self, data):
         # discover context plugins
@@ -274,13 +273,12 @@ class PublisherDefinitionManager(BaseDefinitionManager):
 class DefintionManager(QtCore.QObject):
     '''class wrapper to contain all the definition managers.'''
 
-    def __init__(self, session, host, hostid):
+    def __init__(self, event_manager):
         super(DefintionManager, self).__init__()
 
-        self.session = session
-        self.packages = PackageDefinitionManager(session, host)
-        self.loaders = LoaderDefinitionManager(self.packages, host)
-        self.publishers = PublisherDefinitionManager(self.packages, host)
+        self.packages = PackageDefinitionManager(event_manager)
+        self.loaders = LoaderDefinitionManager(self.packages, event_manager)
+        self.publishers = PublisherDefinitionManager(self.packages, event_manager)
 
         events_types = {
             'publisher': self.publishers.result,
@@ -289,9 +287,9 @@ class DefintionManager(QtCore.QObject):
         }
 
         for event_name, event_callback in events_types.items():
-            self.session.event_hub.subscribe(
+            event_manager.session.event_hub.subscribe(
                 'topic={} and data.pipeline.type={} and data.pipeline.hostid={}'.format(
-                    constants.PIPELINE_REGISTER_DEFINITION_TOPIC, event_name, hostid),
+                    constants.PIPELINE_REGISTER_DEFINITION_TOPIC, event_name, event_manager.hostid),
                 event_callback
 
             )

@@ -14,43 +14,37 @@ class PublisherRunner(object):
     @property
     def hostid(self):
         '''Return the current hostid.'''
-        return self._hostid
+        return self.event_manager.hostid
 
     @property
     def host(self):
         '''Return the current host type.'''
-        return self._host
+        return self.event_manager.host
 
     @property
     def ui(self):
         '''Return the current ui type.'''
-        return self._ui
+        return self.event_manager.ui
 
-    def __init__(self, session, package_definitions, host,  ui, hostid):
+    def __init__(self, event_manager, package_definitions):
         '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
-        self.__remote_events = utils.remote_event_mode()
-
         self.component_stages_order = [
             constants.COLLECT,
             constants.VALIDATE,
             constants.OUTPUT
         ]
 
-        self.session = session
-        self._host = host
-        self._ui = ui
-        self._hostid = hostid
         self.packages = package_definitions
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.event_manager = EventManager(session)
+        self.event_manager = event_manager
 
-        session.event_hub.subscribe(
+        self.event_manager.session.event_hub.subscribe(
             'topic={} and data.pipeline.hostid={}'.format(
-                constants.PIPELINE_RUN_HOST_PUBLISHER, self.hostid
+                constants.PIPELINE_RUN_HOST_PUBLISHER, self.event_manager.hostid
             ),
             self.run
         )
@@ -68,7 +62,7 @@ class PublisherRunner(object):
                     'plugin_name': plugin_name,
                     'plugin_type': plugin_type,
                     'type': 'plugin',
-                    'host': self.host
+                    'host': self.event_manager.host
                 },
                 'settings':
                     {
@@ -98,7 +92,7 @@ class PublisherRunner(object):
         widget_ref = plugin['widget_ref']
 
         pipeline_data = {
-            'hostid': self.hostid,
+            'hostid': self.event_manager.hostid,
             'widget_ref': widget_ref,
             'data': data,
             'status': status,
@@ -114,7 +108,7 @@ class PublisherRunner(object):
 
         self.event_manager.publish(
             event,
-            remote=self.__remote_events
+            remote=self.event_manager.remote
         )
 
     def run_context(self, context_pligins):

@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import threading
-
+import uuid
 import logging
 import ftrack_api
 
@@ -67,26 +67,31 @@ class EventManager(object):
 
     @property
     def remote(self):
-        return self._mode
+        return self._remote
 
-    def __init__(self, session, remote, ui, host, hostid=None):
+    def __init__(self, session, remote, ui=None, host=None):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
         self._session = session
         self._ui = ui
         self._host = host
-        self._hostid = hostid
+        self._hostid = '{}-{}-{}'.format(host, ui, uuid.uuid4().hex)
+
         self._remote = remote
 
-    def publish(self, event, callback=None, remote=False):
+    def publish(self, event, callback=None, remote=None):
         '''Emit *event* and provide *callback* function.'''
 
-        if not remote or not self.remote:
+        is_remote = remote if remote is not None else self.remote
+
+        if not is_remote:
+            self.logger.debug('running event {} local'.format(event))
             event_thread = _EventThread(self.session, event, callback)
             event_thread.start()
 
         else:
+            self.logger.debug('running event {} remote'.format(event))
             self.session.event_hub.publish(
                 event,
                 on_reply=callback
