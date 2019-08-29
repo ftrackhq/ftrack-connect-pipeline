@@ -55,25 +55,26 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         '''Return the current ui type.'''
         return self._ui
 
-    def __init__(self, ui, host, hostid=None, parent=None):
+    def __init__(self, event_manager, parent=None):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         super(BaseQtPipelineWidget, self).__init__(parent=parent)
         self._context = {}
         self._packages = {}
         self._current = {}
         self._widgets_ref = {}
-        self._ui = ui
-        self._host = host
-        self._hostid = hostid
-
-        self._remote_events = utils.remote_event_mode()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.session = get_shared_session()
-        self.event_manager = event.EventManager(self.session)
+        self.event_manager = event_manager
+        self.session = self.event_manager.session
+
+        self._ui = self.event_manager.ui
+        self._host = self.event_manager.host
+        self._hostid = self.event_manager.hostid
+        self._remote_events = self.event_manager.remote
+
         self.event_thread = event.NewApiEventHubThread()
         self.event_thread.start(self.session)
 

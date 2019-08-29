@@ -11,14 +11,17 @@ for path in deps_paths:
 
 from qtpy import QtWidgets
 
+from ftrack_connect_pipeline import utils
+from ftrack_connect_pipeline import session
+from ftrack_connect_pipeline.event import EventManager
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.client import BaseQtPipelineWidget
 
 
 class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
-    def __init__(self, ui, host, hostid=None, parent=None):
-        super(QtPipelinePublishWidget, self).__init__(ui, host, hostid, parent=parent)
+    def __init__(self, event_manager, parent=None):
+        super(QtPipelinePublishWidget, self).__init__(event_manager, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.fetch_publisher_definitions()
 
@@ -194,6 +197,12 @@ class QtPipelinePublishWidget(BaseQtPipelineWidget):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    wid = QtPipelinePublishWidget(ui=constants.UI, host=constants.HOST)
+    event_manager = EventManager(
+        session=session.get_shared_session(),
+        remote=utils.remote_event_mode(),
+        ui=constants.UI,
+        host=constants.HOST
+    )
+    wid = QtPipelinePublishWidget(event_manager)
     wid.show()
     sys.exit(app.exec_())

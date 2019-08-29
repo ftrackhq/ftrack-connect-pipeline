@@ -11,6 +11,9 @@ for path in deps_paths:
 
 
 from qtpy import QtWidgets
+from ftrack_connect_pipeline import utils
+from ftrack_connect_pipeline import session
+from ftrack_connect_pipeline.event import EventManager
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.client import BaseQtPipelineWidget
 
@@ -19,14 +22,20 @@ class QtPipelineLoaderWidget(BaseQtPipelineWidget):
     '''
     Base load widget class.
     '''
-    def __init__(self, ui, host, hostid=None, parent=None):
+    def __init__(self, event_manager, parent=None):
 
-        super(QtPipelineLoaderWidget, self).__init__(ui, host, hostid, parent=parent)
+        super(QtPipelineLoaderWidget, self).__init__(event_manager, parent=parent)
         self.setWindowTitle('Standalone Pipeline Loader')
 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    wid = QtPipelineLoaderWidget(ui=constants.UI, host=constants.HOST)
+    event_manager = EventManager(
+        session=session.get_shared_session(),
+        remote=utils.remote_event_mode(),
+        ui=constants.UI,
+        host=constants.HOST
+    )
+    wid = QtPipelineLoaderWidget(event_manager)
     wid.show()
     sys.exit(app.exec_())
