@@ -73,7 +73,7 @@ class PublisherRunner(object):
             }
         )
 
-        data = self.session.event_hub.publish(
+        data = self.event_manager.session.event_hub.publish(
             event,
             synchronous=True
         )
