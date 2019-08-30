@@ -34,7 +34,7 @@ def initialise(event_manager):
     )
 
     if event_manager.remote:
-        logger.debug('initialising host: {}'.format(hostid))
+        logger.debug('initialising host: {}'.format(event_manager.hostid))
 
         handle_event = functools.partial(provide_host_information, event_manager.hostid)
         session.event_hub.subscribe(
