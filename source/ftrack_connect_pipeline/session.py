@@ -5,19 +5,42 @@ import os
 import logging
 import ftrack_api
 import ftrack_api.exception
+import tempfile
+import uuid
+
+from ftrack_api.cache import FileCache
+from ftrack_api.cache import SerialisedCache
 
 _shared_session = None
+_shared_file_cache = None
 
 logger = logging.getLogger(
     __name__
 )
 
 
+def get_shared_file_cache(session):
+    global _shared_file_cache
+
+    if not _shared_file_cache:
+        file_cache_path = os.path.join(tempfile.gettempdir(), '{}.dbm'.format(uuid.uuid4().hex))
+
+        _shared_file_cache = SerialisedCache(
+            FileCache(path=file_cache_path),
+            encode=session.encode,
+            decode=session.decode
+        )
+        logger.info('creating file cache : {} at {}'.format(_shared_file_cache, file_cache_path))
+
+    return _shared_file_cache
+
+
 def get_session(plugin_paths=None):
 
     session = ftrack_api.Session(
         auto_connect_event_hub=False,
-        plugin_paths=plugin_paths
+        plugin_paths=plugin_paths or [],
+        cache=get_shared_file_cache
     )
 
     # If is not already connected, connect to event hub.
@@ -26,6 +49,9 @@ def get_session(plugin_paths=None):
         session.event_hub.connect()
     else:
         logger.debug('already connected to the hub')
+
+    return session
+
 
 def get_shared_session(plugin_paths=None):
     '''Return shared ftrack_api session.'''

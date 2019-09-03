@@ -5,7 +5,7 @@ import threading
 
 import logging
 import ftrack_api
-
+from ftrack_connect_pipeline import session
 logger = logging.getLogger(__name__)
 
 from qtpy import QtCore
@@ -31,7 +31,7 @@ class _EventThread(threading.Thread):
             self._event,
             synchronous=True,
         )
-
+        self.logger.info('raw local event result :{}'.format(result))
         if result:
             result = result[0]
 
@@ -58,7 +58,7 @@ class EventManager(object):
         '''Emit *event* and provide *callback* function.'''
 
         if not remote:
-            event_thread = _EventThread(self.session, event, callback)
+            event_thread = _EventThread(session, event, callback)
             event_thread.start()
 
         else:
