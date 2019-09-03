@@ -22,9 +22,6 @@ def get_shared_session(plugin_paths=None):
         # when logging in.
         _pipeline_shared_session = ftrack_api.Session(
             auto_connect_event_hub=False,
-            server_url=os.environ['FTRACK_SERVER'],
-            api_key=os.environ['FTRACK_APIKEY'],
-            api_user=os.environ['LOGNAME'],
             plugin_paths=plugin_paths
         )
 
