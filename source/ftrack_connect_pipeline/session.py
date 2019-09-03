@@ -32,6 +32,9 @@ def get_shared_file_cache(session):
         )
         logger.info('creating file cache : {} at {}'.format(_shared_file_cache, file_cache_path))
 
+    else:
+        logger.debug('re using file cache: {}'.format(_shared_file_cache))
+
     return _shared_file_cache
 
 
@@ -39,7 +42,7 @@ def get_session(plugin_paths=None):
 
     session = ftrack_api.Session(
         auto_connect_event_hub=False,
-        plugin_paths=plugin_paths or [],
+        plugin_paths=plugin_paths,
         cache=get_shared_file_cache
     )
 

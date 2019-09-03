@@ -12,7 +12,7 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline.client.widgets import BaseWidget
-from ftrack_connect_pipeline.session import get_shared_session
+from ftrack_connect_pipeline import session
 from ftrack_connect_pipeline.ui.widget import header
 
 
@@ -72,7 +72,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.session = get_shared_session()
+        self.session = session.get_shared_session()
         self.event_manager = event.EventManager(self.session)
         self.event_thread = event.NewApiEventHubThread()
         self.event_thread.start(self.session)

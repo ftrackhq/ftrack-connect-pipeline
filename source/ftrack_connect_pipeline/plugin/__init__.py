@@ -52,6 +52,17 @@ class _Base(object):
             # Exit to avoid registering this plugin again.
             return
 
+        self.session.event_hub.subscribe(
+            'topic=ftrack.api.session.ready',
+            self.register_on_session_ready
+        )
+
+    def register_on_session_ready(self, event):
+        ready_session = event['data']['session']
+
+        # replace current session with initialized one:
+        self._session = ready_session
+
         self.logger.debug('registering: {} for {}'.format(
             self.plugin_name, self.plugin_type)
         )

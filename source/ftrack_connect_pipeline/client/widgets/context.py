@@ -10,7 +10,7 @@ from ftrack_connect_pipeline.ui.widget.asset_selector import AssetSelector
 
 class PublishContextWidget(BaseWidget):
     def __init__(self, parent=None, session=None, data=None, name=None, description=None, options=None):
-        self.context = session.get('Context', options['context_id'])
+        self.context = session.query('Context where id is "{}"'.format(options['context_id'])).one()
         self.asset_type = options.get('asset_type')
         super(PublishContextWidget, self).__init__(parent=parent, session=session, data=data, name=name, description=description, options=options)
         self.asset_selector.set_context(self.context)
@@ -87,9 +87,10 @@ class PublishContextWidget(BaseWidget):
         self.set_option_result(statuses[0]['id'], key='status_id')
 
     def _get_statuses(self):
-        project = self.session.get('Context', self.context['link'][0]['id'])
+        project = self.session.query('Project where id is "{}"'.format(self.context['link'][0]['id'])).one()
         schema = project['project_schema']
         statuses = schema.get_statuses('AssetVersion')
+        self.logger.info('Asset Statuses: {}'.format(list(statuses)))
         return statuses
 
     def _build_comments_input(self):
