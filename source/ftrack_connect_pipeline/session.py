@@ -6,32 +6,37 @@ import logging
 import ftrack_api
 import ftrack_api.exception
 
-_pipeline_shared_session = None
+_shared_session = None
 
 logger = logging.getLogger(
     __name__
 )
 
 
-def get_shared_session(plugin_paths=None):
-    '''Return shared ftrack_api session.'''
-    global _pipeline_shared_session
+def get_session(plugin_paths=None):
 
-    if not _pipeline_shared_session:
-        # Create API session using credentials as stored by the application
-        # when logging in.
-        _pipeline_shared_session = ftrack_api.Session(
-            auto_connect_event_hub=False,
-            plugin_paths=plugin_paths
-        )
+    session = ftrack_api.Session(
+        auto_connect_event_hub=False,
+        plugin_paths=plugin_paths
+    )
 
     # If is not already connected, connect to event hub.
-    if not _pipeline_shared_session.event_hub.connected:
-        logger.debug('connecting to event hub')
-        _pipeline_shared_session.event_hub.connect()
+    if not session.event_hub.connected:
+        logger.info('connecting to event hub')
+        session.event_hub.connect()
     else:
         logger.debug('already connected to the hub')
 
-    logger.debug('creating new session {}'.format(_pipeline_shared_session))
+def get_shared_session(plugin_paths=None):
+    '''Return shared ftrack_api session.'''
+    global _shared_session
 
-    return _pipeline_shared_session
+    if not _shared_session:
+        # Create API session using credentials as stored by the application
+        # when logging in.
+        _shared_session = get_session(plugin_paths=plugin_paths)
+        logger.info('creating new session {}'.format(_shared_session))
+    else:
+        logger.debug('re using session')
+
+    return _shared_session

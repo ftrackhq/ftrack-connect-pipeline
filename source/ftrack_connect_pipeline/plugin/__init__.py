@@ -134,8 +134,7 @@ class _Base(object):
         start_time = time.time()
 
         try:
-            with self.session.auto_populating(True):
-                result = self.run(**settings)
+            result = self.run(**settings)
         except Exception as message:
             end_time = time.time()
             total_time = end_time - start_time
