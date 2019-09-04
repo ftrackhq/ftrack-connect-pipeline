@@ -20,5 +20,5 @@ class TmpOutputPlugin(plugin.OutputPlugin):
 
 
 def register(api_object, **kw):
-    plugin = TmpOutputPlugin(api_object)
-    plugin.register()
+    plugin = TmpOutputPlugin()
+    plugin.register(api_object)

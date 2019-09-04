@@ -18,5 +18,5 @@ class ContextWidget(plugin.BaseWidget):
 
 
 def register(api_object, **kw):
-    plugin = ContextWidget(api_object)
-    plugin.register()
+    plugin = ContextWidget()
+    plugin.register(api_object)

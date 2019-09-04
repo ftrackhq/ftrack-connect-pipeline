@@ -13,5 +13,5 @@ class NonEmptyValidatorPlugin(plugin.ValidatorPlugin):
 
 
 def register(api_object, **kw):
-    plugin = NonEmptyValidatorPlugin(api_object)
-    plugin.register()
+    plugin = NonEmptyValidatorPlugin()
+    plugin.register(api_object)

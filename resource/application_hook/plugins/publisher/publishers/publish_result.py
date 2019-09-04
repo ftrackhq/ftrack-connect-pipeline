@@ -8,8 +8,8 @@ from ftrack_connect_pipeline import plugin
 class FtrackPublishPlugin(plugin.PublisherPlugin):
     plugin_name = 'result'
 
-    def __init__(self, session):
-        super(FtrackPublishPlugin, self).__init__(session)
+    def __init__(self):
+        super(FtrackPublishPlugin, self).__init__()
         self.component_functions = {
             'thumbnail':  self.create_thumbnail,
             'reviewable': self.create_reviewable
@@ -86,5 +86,5 @@ class FtrackPublishPlugin(plugin.PublisherPlugin):
 
 
 def register(api_object, **kw):
-    plugin = FtrackPublishPlugin(api_object)
-    plugin.register()
+    plugin = FtrackPublishPlugin()
+    plugin.register(api_object)

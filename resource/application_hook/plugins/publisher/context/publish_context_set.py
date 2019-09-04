@@ -15,5 +15,5 @@ class EnvContextPlugin(plugin.ContextPlugin):
 
 
 def register(api_object, **kw):
-    plugin = EnvContextPlugin(api_object)
-    plugin.register()
+    plugin = EnvContextPlugin()
+    plugin.register(api_object)

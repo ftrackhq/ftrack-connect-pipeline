@@ -40,15 +40,27 @@ class _Base(object):
     def _base_topic(self, topic):
         return NotImplementedError()
 
-    def __init__(self, session):
+    def __init__(self):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
 
+    def _register(self, event):
+        session = event['data']['session']
+
+        self.logger.info('Session {} ready'.format(session))
         self._session = session
 
-    def register(self):
-        if not isinstance(self.session, ftrack_api.Session):
+        session.event_hub.subscribe(
+            self.run_topic, self._run
+        )
+
+        session.event_hub.subscribe(
+            self.discover_topic, self._discover
+        )
+
+    def register(self, session):
+        if not isinstance(session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
             return
 
@@ -56,12 +68,9 @@ class _Base(object):
             self.plugin_name, self.plugin_type)
         )
 
-        self.session.event_hub.subscribe(
-            self.run_topic, self._run
-        )
-
-        self.session.event_hub.subscribe(
-            self.discover_topic, self._discover
+        session.event_hub.subscribe(
+            'topic=ftrack.api.session.ready',
+            self._register
         )
 
     def _discover(self, event):

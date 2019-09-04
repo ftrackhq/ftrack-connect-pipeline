@@ -67,6 +67,8 @@ class BaseWidget(QtWidgets.QWidget):
         )
         self._widgets = {}
 
+        self.logger.info('using session: {}'.format(session))
+
         self._session = session
         self._data = data
         self._name = name

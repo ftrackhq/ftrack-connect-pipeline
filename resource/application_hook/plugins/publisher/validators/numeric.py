@@ -20,5 +20,5 @@ class NumericValidatorPlugin(plugin.ValidatorPlugin):
 
 
 def register(api_object, **kw):
-    plugin = NumericValidatorPlugin(api_object)
-    plugin.register()
+    plugin = NumericValidatorPlugin()
+    plugin.register(api_object)
