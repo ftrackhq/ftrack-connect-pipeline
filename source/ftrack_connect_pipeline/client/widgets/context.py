@@ -87,7 +87,7 @@ class PublishContextWidget(BaseWidget):
         self.set_option_result(statuses[0]['id'], key='status_id')
 
     def _get_statuses(self):
-        self.logger.info('using session: {} : autopopulate: {}'.format(self.session, self.session.auto_populate))
+        self.logger.info('autopopulate: {}'.format(self.session.auto_populate))
         project = self.session.query('Project where id is "{}"'.format(self.context['link'][0]['id'])).one()
 
         schema = project['project_schema']

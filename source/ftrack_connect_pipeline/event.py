@@ -58,9 +58,6 @@ class EventManager(object):
         '''Emit *event* and provide *callback* function.'''
 
         if not remote:
-            # event_thread = _EventThread(self.session, event, callback)
-            # event_thread.start()
-
             result = self.session.event_hub.publish(
                 event,
                 synchronous=True,

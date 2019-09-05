@@ -68,8 +68,8 @@ class BaseWidget(QtWidgets.QWidget):
         self._widgets = {}
 
         self.logger.info('using session: {} : autopopulate: {}'.format(session, session.auto_populate))
-
         self._session = session
+
         self._data = data
         self._name = name
         self._description = description
