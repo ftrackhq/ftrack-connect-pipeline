@@ -6,7 +6,7 @@ import logging
 from qtpy import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants
-
+from ftrack_connect_pipeline import session as fsession
 
 class BaseWidget(QtWidgets.QWidget):
     status_updated = QtCore.Signal(object)
@@ -67,7 +67,9 @@ class BaseWidget(QtWidgets.QWidget):
         )
         self._widgets = {}
 
-        self._session = session
+        self._session = fsession.get_shared_session()
+        self.logger.info('Session : {} auto_populate: {}'.format(self.session, self.session.auto_populate))
+
         self._data = data
         self._name = name
         self._description = description

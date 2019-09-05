@@ -58,8 +58,23 @@ class EventManager(object):
         '''Emit *event* and provide *callback* function.'''
 
         if not remote:
-            event_thread = _EventThread(self.session, event, callback)
-            event_thread.start()
+            result = self.session.event_hub.publish(
+                event,
+                synchronous=True,
+            )
+
+            if result:
+                result = result[0]
+
+            # Mock async event reply.
+            event_result = ftrack_api.event.base.Event(
+                topic=u'ftrack.meta.reply',
+                data=result,
+                in_reply_to_event=event['id'],
+            )
+
+            if callback:
+                callback(event_result)
 
         else:
             self.session.event_hub.publish(

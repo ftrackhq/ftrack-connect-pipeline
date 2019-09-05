@@ -18,6 +18,7 @@ class PublishContextWidget(BaseWidget):
     def build(self):
         '''build function widgets.'''
         super(PublishContextWidget, self).build()
+        self.logger.info('Session : {} auto_populate: {}'.format(self.session, self.session.auto_populate))
         self._build_context_id_selector()
         self._build_asset_selector()
         self._build_status_selector()

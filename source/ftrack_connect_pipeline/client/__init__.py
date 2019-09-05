@@ -73,6 +73,7 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
         )
 
         self.session = get_shared_session()
+        self.logger.info('Session : {} auto_populate: {}'.format(self.session, self.session.auto_populate))
         self.event_manager = event.EventManager(self.session)
         self.event_thread = event.NewApiEventHubThread()
         self.event_thread.start(self.session)
