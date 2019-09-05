@@ -156,7 +156,15 @@ setup(
     install_requires=[
         'jsonschema==2.6.0',
         'appdirs',
-        'qtpy >=1.0.0, < 2'
+        'qtpy >=1.0.0, < 2',
+        'ftrack-python-api==1.8.0.1', # use fake number to mark a different version while testing
+    ],
+    dependency_links=[
+        (
+            'https://bitbucket.org/ftrack/ftrack-python-api/'
+            'get/backlog/thread-safe-api.zip'
+            '#egg=ftrack-python-api-1.8.0.1'
+        )
     ],
     tests_require=[
         'pytest >= 2.3.5, < 3'
