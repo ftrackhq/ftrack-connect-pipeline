@@ -19,8 +19,7 @@ class _EventThread(threading.Thread):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
-        self._callback = callback
+        self._callback = invoke_in_main_thread(callback)
         self._event = event
         self._session = session
         self._result = {}
@@ -58,24 +57,8 @@ class EventManager(object):
         '''Emit *event* and provide *callback* function.'''
 
         if not remote:
-            result = self.session.event_hub.publish(
-                event,
-                synchronous=True,
-            )
-
-            if result:
-                result = result[0]
-
-            # Mock async event reply.
-            event_result = ftrack_api.event.base.Event(
-                topic=u'ftrack.meta.reply',
-                data=result,
-                in_reply_to_event=event['id'],
-            )
-
-            if callback:
-                callback(event_result)
-
+            event_thread = _EventThread(self.session, event, callback)
+            event_thread.start()
         else:
             self.session.event_hub.publish(
                 event,
@@ -102,3 +85,40 @@ class NewApiEventHubThread(QtCore.QThread):
         '''Listen for events.'''
         self.logger.debug('Event hub thread started.')
         self._session.event_hub.wait()
+
+
+# Invoke function in main UI thread.
+# Taken from:
+# http://stackoverflow.com/questions/10991991/pyside-easier-way-of-updating-gui-from-another-thread/12127115#12127115
+
+class InvokeEvent(QtCore.QEvent):
+    '''Event.'''
+
+    EVENT_TYPE = QtCore.QEvent.Type(QtCore.QEvent.registerEventType())
+
+    def __init__(self, fn, *args, **kwargs):
+        '''Invoke *fn* in main thread.'''
+        QtCore.QEvent.__init__(self, InvokeEvent.EVENT_TYPE)
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+
+
+class Invoker(QtCore.QObject):
+    '''Invoker.'''
+
+    def event(self, event):
+        '''Call function on *event*.'''
+        event.fn(*event.args, **event.kwargs)
+
+        return True
+
+_invoker = Invoker()
+
+
+def invoke_in_main_thread(fn, *args, **kwargs):
+    '''Invoke function *fn* with arguments.'''
+    QtCore.QCoreApplication.postEvent(
+        _invoker,
+        InvokeEvent(fn, *args, **kwargs)
+    )
