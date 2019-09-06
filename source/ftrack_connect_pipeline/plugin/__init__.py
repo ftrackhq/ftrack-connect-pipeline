@@ -134,6 +134,10 @@ class _Base(object):
         start_time = time.time()
 
         try:
+            # NOTE: Enforcing of the auto_populating, is a patch for a Symbol issue in the ftrack_api session
+            # which seems coming from the use of threading (the ui tries to access an entity while is still being built)
+            # This require a proper look up as soon as possible as is something which might be hiding other issues.
+
             with self.session.auto_populating(True):
                 result = self.run(**settings)
 
