@@ -389,17 +389,7 @@ class EntityTreeModel(QtCore.QAbstractItemModel):
             self.loadStarted.emit()
             startIndex = len(item.children)
 
-            worker = Worker(item.fetchChildren)
-            worker.start()
-
-            while worker.isRunning():
-                app = QtWidgets.QApplication.instance()
-                app.processEvents()
-
-            if worker.error:
-                raise worker.error[1], None, worker.error[2]
-
-            additionalChildren = worker.result
+            additionalChildren = item.fetchChildren()
 
             endIndex = startIndex + len(additionalChildren) - 1
             if endIndex >= startIndex:
