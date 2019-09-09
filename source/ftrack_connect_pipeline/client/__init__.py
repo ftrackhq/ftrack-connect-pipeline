@@ -74,8 +74,11 @@ class BaseQtPipelineWidget(QtWidgets.QWidget):
 
         self.session = get_shared_session()
         self.event_manager = event.EventManager(self.session)
-        self.event_thread = event.NewApiEventHubThread()
-        self.event_thread.start(self.session)
+
+        if utils.remote_event_mode():
+            # if we are in remote mode we need a separate event hub.
+            self.event_thread = event.NewApiEventHubThread()
+            self.event_thread.start(self.session)
 
         self.pre_build()
         self.build()
