@@ -8,6 +8,7 @@ class NonEmptyValidatorPlugin(plugin.ValidatorPlugin):
     plugin_name = 'nonempty'
 
     def run(self, context=None, data=None, options=None):
+        print "None empty validator"
         self.logger.info('data: {}'.format(data))
         return all(bool(datum) for datum in data)
 

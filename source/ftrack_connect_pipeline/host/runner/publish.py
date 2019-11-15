@@ -78,11 +78,17 @@ class PublisherRunner(object):
                     }
             }
         )
-
+        print "this is the result of Data 1 ----> ", data
         data = self.session.event_hub.publish(
             event,
             synchronous=True
         )
+        print "this is the result of Data ----> ", data
+        print 'the event is ----> : {}'.format(event)
+        print 'the plugin_name is ----> : {}'.format(plugin_name)
+        self.logger.info('this is the result of Data ----> : {}'.format(data))
+        self.logger.info('the event is ----> : {}'.format(event))
+        self.logger.info('the plugin_name is ----> : {}'.format(plugin_name))
 
         result = data[0]['result']
         status = data[0]['status']
