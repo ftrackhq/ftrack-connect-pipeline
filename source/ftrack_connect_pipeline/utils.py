@@ -4,9 +4,10 @@
 import threading
 import sys
 import logging
+import types
 
 import os
-from Qt import QtCore
+from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants
 
@@ -113,3 +114,71 @@ def asynchronous(method):
         thread.start()
 
     return wrapper
+
+
+class MainThreadWorker(QtCore.QObject):
+
+    __main_thread_lock = threading.Lock()
+    __signal = QtCore.Signal(object)
+    _async = False
+
+    def __init__(self, asynchronous=False):
+        super(MainThreadWorker, self).__init__()
+        self.function = None
+        self.result = None
+        self._async = asynchronous
+        if QtCore.QCoreApplication.instance():
+            self.moveToThread(QtCore.QCoreApplication.instance().thread())
+
+    def _check_args_type(self, *args):
+        if type(args) != types.TupleType:
+            args = (args,)
+        return args
+
+    def run(self, function, *args, **kwargs):
+        args = self._check_args_type(*args)
+        self.function = lambda: function(*args, **kwargs)
+        print "function in run ---> {0}".format(self.function)
+        if self._async:
+            self._async_run(self.function)#(self.function, *args, **kwargs)
+        else:
+            return self._sync_run()#(self.function, *args, **kwargs)
+
+    def _sync_run(self):
+        self.__main_thread_lock.acquire()
+        try:
+            QtCore.QMetaObject.invokeMethod(self, "_execute_function", QtCore.Qt.BlockingQueuedConnection)#QtCore.Qt.BlockingQueuedConnection)
+        finally:
+            self.__main_thread_lock.release()
+
+        return self.result
+
+    @QtCore.Slot()
+    def _execute_function(self):
+        """
+        Execute the function
+        """
+        if self._async:
+            self.function()
+        else:
+            print "function in _execute_function ---> {0}".format(self.function)
+            self.result = self.function()
+
+    def _async_run(self):
+        self._async=True
+        self.__signal.connect(self._execute_function)
+        self.__signal.emit(self.function)
+
+
+    def execute_in_main_thread(self, func, *args, **kwargs):
+        #We shoud add if async no return
+        if (QtWidgets.QApplication.instance()):
+            if (QtCore.QThread.currentThread() != QtWidgets.QApplication.instance().thread()):
+                print "yes we are executing in the main thread"
+                result = self.run(func, *args, **kwargs)
+                print "this is the result {0}".format(result)
+                return result  # invoker.invoke(func, *args, **kwargs)
+        print "We are are in the main thread"
+        return func(*args, **kwargs)
+
+
