@@ -11,7 +11,6 @@ from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants
 
-
 def get_current_context():
     '''return an api object representing the current context.'''
     context_id = os.getenv(
@@ -140,15 +139,20 @@ class MainThreadWorker(QtCore.QObject):
         self.function = lambda: function(*args, **kwargs)
         print "function in run ---> {0}".format(self.function)
         if self._async:
-            self._async_run(self.function)#(self.function, *args, **kwargs)
+            self._async_run()#(self.function, *args, **kwargs)
         else:
             return self._sync_run()#(self.function, *args, **kwargs)
 
     def _sync_run(self):
         self.__main_thread_lock.acquire()
         try:
+            print " before invoke metod "
             QtCore.QMetaObject.invokeMethod(self, "_execute_function", QtCore.Qt.BlockingQueuedConnection)#QtCore.Qt.BlockingQueuedConnection)
+            print " after invoke method "
+        except Exception, e:
+            print " There was an error invoking method ---> {}".format(e)
         finally:
+            print " finally releasing thread "
             self.__main_thread_lock.release()
 
         return self.result
@@ -168,7 +172,6 @@ class MainThreadWorker(QtCore.QObject):
         self._async=True
         self.__signal.connect(self._execute_function)
         self.__signal.emit(self.function)
-
 
     def execute_in_main_thread(self, func, *args, **kwargs):
         #We shoud add if async no return
