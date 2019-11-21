@@ -7,6 +7,9 @@ import logging
 import logging.config
 import appdirs
 import errno
+import functools
+
+_logger_name = None
 
 def report_exception(function):
     """
@@ -68,6 +71,8 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
     # Provide default values for level and format.
     format = format or '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     level = level or logging.WARNING
+    global _logger_name
+    _logger_name = logger_name
 
     log_directory = get_log_directory()
     logfile = os.path.join(
