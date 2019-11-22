@@ -7,7 +7,33 @@ import logging
 import logging.config
 import appdirs
 import errno
+import functools
 
+_logger_name = None
+
+def report_exception(function):
+    """
+    A decorator that wraps the passed in function and logs
+    exceptions should one occur
+    # https://www.blog.pythonlibrary.org/2016/06/09/python-how-to-create-an-exception-logging-decorator/
+    """
+
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        global _logger_name
+        logger = logging.getLogger(_logger_name)
+        try:
+            return function(*args, **kwargs)
+        except:
+            # log the exception
+            err = 'Exception cought in : '
+            err += function.__name__
+            logger.exception(err)
+
+            # re-raise the exception
+            raise
+
+    return wrapper
 
 def get_log_directory():
     '''Get log directory.
@@ -45,6 +71,8 @@ def configure_logging(logger_name, level=None, format=None, extra_modules=None):
     # Provide default values for level and format.
     format = format or '%(levelname)s - %(threadName)s - %(asctime)s - %(name)s - %(message)s'
     level = level or logging.WARNING
+    global _logger_name
+    _logger_name = logger_name
 
     log_directory = get_log_directory()
     logfile = os.path.join(

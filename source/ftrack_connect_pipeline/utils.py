@@ -4,12 +4,12 @@
 import threading
 import sys
 import logging
+import types
 
 import os
-from Qt import QtCore
+from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants
-
 
 def get_current_context():
     '''return an api object representing the current context.'''
@@ -113,3 +113,54 @@ def asynchronous(method):
         thread.start()
 
     return wrapper
+
+
+class MainThreadWorker(QtCore.QObject):
+
+    __main_thread_lock = threading.Lock()
+    __signal = QtCore.Signal(object)
+
+    def __init__(self):
+        super(MainThreadWorker, self).__init__()
+        self.function = None
+        self.result = None
+        if QtCore.QCoreApplication.instance():
+            self.moveToThread(QtCore.QCoreApplication.instance().thread())
+
+    def _check_args_type(self, *args):
+        if type(args) != types.TupleType:
+            args = (args,)
+        return args
+
+    def run(self, function, *args, **kwargs):
+        args = self._check_args_type(*args)
+        self.function = lambda: function(*args, **kwargs)
+        return self._sync_run()
+
+    def _sync_run(self):
+        self.__main_thread_lock.acquire()
+        try:
+            QtCore.QMetaObject.invokeMethod(self, "_execute_function", QtCore.Qt.BlockingQueuedConnection)
+        except Exception, e:
+            print " There was an error invoking method ---> {}".format(e)
+        finally:
+            self.__main_thread_lock.release()
+
+        return self.result
+
+    @QtCore.Slot()
+    def _execute_function(self):
+        """
+        Execute the function
+        """
+        self.result = self.function()
+
+    def execute_in_main_thread(self, func, *args, **kwargs):
+        #We shoud add if async no return
+        if (QtWidgets.QApplication.instance()):
+            if (QtCore.QThread.currentThread() != QtWidgets.QApplication.instance().thread()):
+                result = self.run(func, *args, **kwargs)
+                return result  # invoker.invoke(func, *args, **kwargs)
+        return func(*args, **kwargs)
+
+
