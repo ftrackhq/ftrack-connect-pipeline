@@ -47,14 +47,13 @@ class BasePipelineClient(object):
         '''Return the current ui type.'''
         return self._hosts_ids_l
 
-    def __init__(self, ui, host, hostid=None):
+    def __init__(self, session, host, ui):
         '''Initialise widget with *ui* , *host* and *hostid*.'''
         #super(BasePipelineClient, self).__init__()
         self._packages = {}
         self._current = {}
         self._ui = ui
         self._host = host
-        self._hostid = hostid
         self._hosts_ids_l = [] #list of dictionaries as {"hostid":hostId, "contextid":contextid}
 
         self._remote_events = utils.remote_event_mode()
@@ -63,15 +62,20 @@ class BasePipelineClient(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.session = get_shared_session()
+        self.session = session
         self.event_manager = event.EventManager(self.session)
         self.event_thread = event.EventHubThread()
         self.event_thread.start(self.session)
+        self._callback = None
+        self.initalised = False
 
+    def connect(self, host_id, callback_function):
+        self._hostid = host_id
+        self._callback = callback_function
         self.fetch_package_definitions()
 
-        if not self.hostid:
-            self.discover_hosts()
+    def disconnect(self):
+        pass
 
     def fetch_package_definitions(self):
         self._fetch_defintions('package', self._packages_loaded)
@@ -79,9 +83,11 @@ class BasePipelineClient(object):
     def _packages_loaded(self, event):
         '''event callback for when the publishers are loaded.'''
         raw_data = event['data']
-
         for item_name, item in raw_data.items():
             self._packages[item_name] = item
+
+        self.initalised = True
+        self._callback(self)
 
     def _fetch_defintions(self, definition_type, callback):
         '''Helper to retrieve defintion for *definition_type* and *callback*.'''
@@ -99,6 +105,7 @@ class BasePipelineClient(object):
             callback=callback,
             remote=self._remote_events
         )
+
     def set_host_and_context(self, host_id, context_id):
         '''Change the current host and context'''
         self._context = self.session.get('Context', context_id)

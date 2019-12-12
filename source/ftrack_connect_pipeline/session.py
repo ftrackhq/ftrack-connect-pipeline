@@ -22,16 +22,15 @@ def get_shared_session(plugin_paths=None):
     if not _shared_session:
         # Create API session using credentials as stored by the application
         # when logging in.
+        logger.debug('creating new session {}'.format(_shared_session))
         _shared_session = ftrack_api.Session(
             auto_connect_event_hub=False,
             plugin_paths=plugin_paths
         )
 
-        # If is not already connected, connect to event hub.
-        if not _shared_session.event_hub.connected:
-            logger.debug('connecting to event hub')
-            _shared_session.event_hub.connect()
-
-        logger.debug('creating new session {}'.format(_shared_session))
+    # If is not already connected, connect to event hub.
+    if not _shared_session.event_hub.connected:
+        logger.debug('connecting to event hub')
+        _shared_session.event_hub.connect()
 
     return _shared_session
