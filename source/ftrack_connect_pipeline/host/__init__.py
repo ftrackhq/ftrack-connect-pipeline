@@ -15,15 +15,15 @@ logger = logging.getLogger(__name__)
 
 def provide_host_information(hostid, event):
     '''return the current hostid'''
-    logger.debug('providing hostid: {}'.format(hostid))
+    logger.info('providing hostid: {}'.format(hostid))
     context_id = utils.get_current_context()
     return {'hostid': hostid, 'context_id': context_id}
 
 
-def initialise(session, host, ui):
+def initialise(session, host):
     '''Initialize host with *session*, *host* and *ui*, return *hostid*'''
     #we should call initialize schemas here
-    hostid = '{}-{}-{}'.format(host, ui, uuid.uuid4().hex)
+    hostid = '{}-{}'.format(host, uuid.uuid4().hex)
 
     #Starting new event thread
     event_thread = event.EventHubThread()
@@ -33,19 +33,14 @@ def initialise(session, host, ui):
 
     definition_manager = DefintionManager(session, host, hostid, schema_manager)
     package_results = definition_manager.packages.result()
-    PublisherRunner(session, package_results, host, ui, hostid)
+    PublisherRunner(session, package_results, host, hostid)
 
-    is_remote_event = utils.remote_event_mode()
+    logger.debug('initialising host: {}'.format(hostid))
 
-    if is_remote_event:
-        logger.debug('initialising host: {}'.format(hostid))
-
-        handle_event = functools.partial(provide_host_information, hostid)
-        session.event_hub.subscribe(
-            'topic={}'.format(
-                constants.PIPELINE_DISCOVER_HOST
-            ),
-            handle_event
-        )
-
-    return hostid
+    handle_event = functools.partial(provide_host_information, hostid)
+    session.event_hub.subscribe(
+        'topic={}'.format(
+            constants.PIPELINE_DISCOVER_HOST
+        ),
+        handle_event
+    )

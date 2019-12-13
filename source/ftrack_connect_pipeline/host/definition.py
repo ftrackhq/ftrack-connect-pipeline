@@ -67,6 +67,7 @@ class BaseDefinitionManager(object):
         self.logger.info('Registering {}'.format(result['name']))
         self.__registry[name] = result
 
+
     def register(self, schema_type):
         '''register package'''
 

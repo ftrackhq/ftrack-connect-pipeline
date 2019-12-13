@@ -26,7 +26,7 @@ class PublisherRunner(object):
         '''Return the current ui type.'''
         return self._ui
 
-    def __init__(self, session, package_definitions, host,  ui, hostid):
+    def __init__(self, session, package_definitions, host , hostid):
         '''Initialise publish runnder with *session*, *package_definitions*, *host*, *ui* and *hostid*.'''
         self.__remote_events = utils.remote_event_mode()
 
@@ -38,7 +38,6 @@ class PublisherRunner(object):
 
         self.session = session
         self._host = host
-        self._ui = ui
         self._hostid = hostid
         self.packages = package_definitions
 
