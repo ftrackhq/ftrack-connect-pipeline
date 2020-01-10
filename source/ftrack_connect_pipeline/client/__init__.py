@@ -124,14 +124,14 @@ class Client(object):
                 'Terminate with: Ctrl-C'
             )
 
+        self._discover_hosts()
+
         while not self.hosts:
             delta_time = time.time() - start_time
 
             if time_out and delta_time >= time_out:
                 self.logger.warning('Could not discover any host.')
                 break
-
-            self._discover_hosts()
 
         if self.__callback and self.hosts:
             self.__callback(self.hosts)
