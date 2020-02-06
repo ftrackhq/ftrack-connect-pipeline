@@ -7,7 +7,7 @@ from ftrack_connect_pipeline import plugin
 class NumericValidatorPlugin(plugin.ValidatorPlugin):
     plugin_name = 'numeric'
 
-    def run(self, context=None, data=None, options=None):
+    def run(self, session=None, context=None, data=None, options=None):
         output = self.output
         self.logger.info('data: {}'.format(data))
         test = options.get('test')

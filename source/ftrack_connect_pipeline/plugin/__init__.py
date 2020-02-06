@@ -306,7 +306,7 @@ class BasePlugin(object):
         #     'message': 'Successfully run :{}'.format(self.__class__.__name__)
 
 
-    def run(self, context=None, data=None, options=None):
+    def run(self, session=None, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.
 
         *context* provides a mapping with the asset_name, context_id, asset_type,

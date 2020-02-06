@@ -9,7 +9,7 @@ from ftrack_connect_pipeline import plugin
 class PassthroughPlugin(plugin.OutputPlugin):
     plugin_name = 'passthrough'
 
-    def run(self, context=None, data=None, options=None):
+    def run(self, session=None, context=None, data=None, options=None):
         component_name = options['component_name']
         output = self.output
         for item in data:

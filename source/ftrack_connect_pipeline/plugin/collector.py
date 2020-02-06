@@ -65,7 +65,7 @@ class CollectorPlugin(BasePlugin):
             self.plugin_name, self._required_output, self.return_type,
             self.return_value)
 
-    def run(self, context=None, data=None, options=None):
+    def run(self, session=None, context=None, data=None, options=None):
         '''Run the current plugin with , *context* , *data* and *options*.
 
         *context* provides a mapping with the asset_name, context_id,

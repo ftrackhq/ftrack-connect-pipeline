@@ -7,7 +7,7 @@ from ftrack_connect_pipeline import plugin
 class EnvContextPlugin(plugin.ContextPlugin):
     plugin_name = 'context.load'
 
-    def run(self, context=None, data=None, options=None):
+    def run(self, session=None, context=None, data=None, options=None):
         return context
 
 

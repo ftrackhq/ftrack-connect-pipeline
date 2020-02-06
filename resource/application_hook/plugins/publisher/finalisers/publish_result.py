@@ -37,41 +37,42 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
         asset_version.encode_media(component_path)
         os.remove(component_path)
 
-    def run(self, context=None, data=None, options=None):
+    def run(self, session=None, context=None, data=None, options=None):
         output = self.output
+        self.session = session
 
         comment = context['comment']
         status_id = context['status_id']
         asset_name = context['asset_name']
         asset_type = context['asset_type']
 
-        status = self.session.get('Status', status_id)
+        status = session.get('Status', status_id)
 
-        context_object = self.session.get('Context', context['context_id'])
-        asset_type_object = self.session.query(
+        context_object = session.get('Context', context['context_id'])
+        asset_type_object = session.query(
             'AssetType where short is "{}"'.format(asset_type)).first()
         asset_parent_object = context_object['parent']
 
-        asset_object = self.session.query(
+        asset_object = session.query(
             'Asset where name is "{}" and type.short is "{}" and '
             'parent.id is "{}"'.format(
                 asset_name, asset_type, asset_parent_object['id'])).first()
 
         if not asset_object:
-            asset_object = self.session.create('Asset', {
+            asset_object = session.create('Asset', {
                 'name': asset_name,
                 'type': asset_type_object,
                 'parent': asset_parent_object
             })
 
-        asset_version = self.session.create('AssetVersion', {
+        asset_version = session.create('AssetVersion', {
             'asset': asset_object,
             'task': context_object,
             'comment': comment,
             'status': status
         })
 
-        self.session.commit()
+        session.commit()
 
         results = {}
 
@@ -84,7 +85,7 @@ class FtrackPublishPlugin(plugin.FinaliserPlugin):
 
         output.update(results)
 
-        self.session.commit()
+        session.commit()
 
         self.logger.debug("publishing: {} to {} as {}".format(data, context,
                                                               asset_object))

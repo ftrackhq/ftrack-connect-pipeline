@@ -7,7 +7,7 @@ from ftrack_connect_pipeline import plugin
 class FileExistsValidatorPlugin(plugin.ValidatorPlugin):
     plugin_name = 'file_exists'
 
-    def run(self, context=None, data=None, options=None):
+    def run(self, session=None, context=None, data=None, options=None):
         output = self.output
         output = all(bool(os.path.exists(datum)) for datum in data)
         return output
