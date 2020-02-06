@@ -6,6 +6,7 @@ import time
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline.plugin import validator
 
 
 def getEngine(baseClass, engineType):
@@ -35,6 +36,7 @@ class BaseEngine(object):
 
         self.asset_type = asset_type
         self.session = event_manager.session
+
         self._host = host
         self._hostid = hostid
 
@@ -89,17 +91,19 @@ class BaseEngine(object):
             if plugin_result_data:
                 start_time = time.time()
                 exec_result = [plugin_result_data[0]()]
+
                 end_time = time.time()
                 total_time = end_time - start_time
 
-                result_data = [{
+                result_data = {
                     'plugin_name': plugin_name,
                     'plugin_type': plugin_type,
                     'status': constants.SUCCESS_STATUS,
                     'result': exec_result[0],
                     'execution_time': total_time,
                     'message': str('TESTRUN')
-                }]
+                }
+                break
 
         self._notify_client(plugin, result_data)
         return result_data['status'], result_data['result']
