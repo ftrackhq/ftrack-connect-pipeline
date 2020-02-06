@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 import copy
+import time
 import logging
 import ftrack_api
 from ftrack_connect_pipeline import constants
@@ -86,8 +87,19 @@ class BaseEngine(object):
                 synchronous=True
             )
             if plugin_result_data:
-                result_data= plugin_result_data[0]
-                break
+                start_time = time.time()
+                exec_result = [plugin_result_data[0]()]
+                end_time = time.time()
+                total_time = end_time - start_time
+
+                result_data = [{
+                    'plugin_name': plugin_name,
+                    'plugin_type': plugin_type,
+                    'status': constants.SUCCESS_STATUS,
+                    'result': exec_result[0],
+                    'execution_time': total_time,
+                    'message': str('TESTRUN')
+                }]
 
         self._notify_client(plugin, result_data)
         return result_data['status'], result_data['result']
