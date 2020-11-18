@@ -82,6 +82,21 @@ class AssetManagerClient(client.Client):
                 ftrack_asset['session'] = self.session
                 self._ftrack_asset_list.append(ftrack_asset)
         self._connected = True
+        self.check_assets_health(self.ftrack_asset_list)
+
+    def check_assets_health(self, asset_info_list):
+        '''
+        Check if all linked nodes the assets of the given *asset_info_list*
+        exists
+        '''
+        data = {
+            'method': 'assets_health',
+            'plugin': None,
+            'assets': asset_info_list
+        }
+        self.host_connection.run(
+            data, self.engine_type, self._check_assets_health_callback
+        )
 
     def change_version(self, asset_info, new_version_id):
         '''
@@ -192,3 +207,26 @@ class AssetManagerClient(client.Client):
                 continue
             self.logger.info('Updating id {} with index {}'.format(key, index))
             self.ftrack_asset_list[index] = value.get(value.keys()[0])
+
+    def _check_assets_health_callback(self, event):
+        '''
+        check_assets_health callback. it updates the current ftrack_asset_list
+        '''
+        if not event['data']:
+            return
+
+        data = event['data']
+
+        assets_health = {}
+        for key, value in data.items():
+            asset_info = self._find_asset_info_by_id(key)
+            index = self.ftrack_asset_list.index(asset_info)
+            if index is None:
+                continue
+            self.logger.info(
+                'Asset health of id {} with index {} is {}'.format(
+                    key, index, value
+                )
+            )
+            assets_health[index] = value
+        return assets_health

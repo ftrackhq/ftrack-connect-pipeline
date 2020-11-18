@@ -85,6 +85,59 @@ class AssetManagerEngine(BaseEngine):
 
         return status, result
 
+    def assets_health(self, assets, options=None, plugin=None):
+        '''
+        Check the ftrack node connections of the given *assets* and return True
+        if it's connected to a DCC object False if not
+        '''
+        status = None
+        result = None
+        statuses = {}
+        results = {}
+
+        for asset_info in assets:
+            try:
+                status, result = self.asset_health(asset_info, options, plugin)
+            except Exception, e:
+                status = constants.ERROR_STATUS
+                self.logger.error(
+                    "Error checking asset health with version id {} \n error: {} "
+                    "\n asset_info: {}".format(
+                        asset_info[asset_const.VERSION_ID],
+                        e,
+                        asset_info
+                    )
+                )
+
+            bool_status = constants.status_bool_mapping[status]
+            statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
+            results[asset_info[asset_const.ASSET_INFO_ID]] = result
+
+        return statuses, results
+
+    def asset_health(self, asset_info, options=None, plugin=None):
+        '''
+        Check the ftrack node connections and return True if it's connected to a
+        DCC object False if not
+        '''
+
+        result = "full"
+        status = constants.SUCCESS_STATUS
+
+        result_data = {
+            'plugin_name': 'asset_health',
+            'plugin_type': 'action',
+            'method': 'asset_health',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': None
+        }
+
+        self._notify_client(plugin, result_data)
+
+        return status, result
+
     def remove_assets(self, assets, options=None, plugin=None):
         '''
         Removes the given *assets*.
