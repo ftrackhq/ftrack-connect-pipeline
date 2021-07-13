@@ -12,6 +12,8 @@ from ftrack_connect_pipeline import constants, utils
 
 from functools import partial
 
+from ftrack_connect_pipeline_qt.profile import profileit
+
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +77,7 @@ class Host(object):
         '''
         return self._event_manager.session
 
+    # @profileit
     def __init__(self, event_manager):
         '''
         Initialise Host with instance of
