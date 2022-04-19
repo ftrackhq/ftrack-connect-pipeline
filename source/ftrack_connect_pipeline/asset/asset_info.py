@@ -103,14 +103,6 @@ class FtrackAssetInfo(dict):
     Base FtrackAssetInfo class.
     '''
 
-    @property
-    def is_deprecated(self):
-        '''
-        Returns whether the current class is made up from a legacy mapping type
-        of the asset_information.
-        '''
-        return self._is_deprecated_version
-
     def _conform_data(self, mapping):
         '''
         Creates the FtrackAssetInfo object from the given dictionary on the
@@ -136,7 +128,6 @@ class FtrackAssetInfo(dict):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-        self._is_deprecated_version = False
         mapping = mapping or {}
         mapping = self._conform_data(mapping)
         super(FtrackAssetInfo, self).__init__(mapping, **kwargs)
