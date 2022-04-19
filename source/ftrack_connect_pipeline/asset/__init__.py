@@ -122,8 +122,8 @@ class FtrackAssetBase(object):
 
         self._ftrack_object = None
 
-    def set_asset_info(self, asset_info_class):
-        self.asset_info = asset_info_class
+    def set_asset_info(self, asset_info):
+        self.asset_info = asset_info
 
     def init_ftrack_object(self, create_object=True, is_loaded=True):
         '''
