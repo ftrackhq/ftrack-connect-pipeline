@@ -31,7 +31,7 @@ class HostConnection(object):
         if value == self.context_id:
             return
         self._context_id = value
-        self._change_host_context_id()
+        #self._change_host_context_id()
 
     @property
     def event_manager(self):
@@ -153,6 +153,7 @@ class HostConnection(object):
 
         self._event_manager = event_manager
         self._raw_host_data = copy_data
+        #print("_raw_host_data --> {}".format(self._raw_host_data))
         self._context_id = self._raw_host_data.get('context_id')
         self.subscribe_host_context_change()
 
@@ -202,30 +203,42 @@ class HostConnection(object):
 
     def _ftrack_host_context_id_changed(self, event):
         '''Set the new context ID based on data provided in *event*'''
+        print("context changed")
         self.context_id = event['data']['pipeline']['context_id']
 
-    def _change_host_context_id(self):
-        '''The context has been changed, send events'''
-        #  Send an remote mode event to be picked up by host and other host connections.
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
-            data={
-                'pipeline': {'host_id': self.id, 'context_id': self.context_id}
-            },
-        )
-        self.event_manager.publish(
-            event,
-        )
-        #  Send an local event to be picked up by host and other host connections.
+    def change_host_context_id(self, context_id):
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
             data={
-                'pipeline': {'host_id': self.id, 'context_id': self.context_id}
+                'pipeline': {'host_id': self.id, 'context_id': context_id}
             },
         )
         self.event_manager.publish(
             event,
         )
+
+    # def _change_host_context_id(self):
+    #     '''The context has been changed, send events'''
+    #     #  Send an remote mode event to be picked up by host and other host connections.
+    #     event = ftrack_api.event.base.Event(
+    #         topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
+    #         data={
+    #             'pipeline': {'host_id': self.id, 'context_id': self.context_id}
+    #         },
+    #     )
+    #     self.event_manager.publish(
+    #         event,
+    #     )
+    #     #  Send an local event to be picked up by host and other host connections.
+    #     event = ftrack_api.event.base.Event(
+    #         topic=constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
+    #         data={
+    #             'pipeline': {'host_id': self.id, 'context_id': self.context_id}
+    #         },
+    #     )
+    #     self.event_manager.publish(
+    #         event,
+    #     )
 
 
 class Client(object):
@@ -286,7 +299,8 @@ class Client(object):
             raise ValueError('Context should be in form of a string.')
         if self.host_connection is None:
             raise Exception('No host connection available')
-        self.host_connection.context_id = context_id
+        #self.host_connection.context_id = context_id
+        self.host_connection.change_host_context_id(context_id)
 
     @property
     def context(self):
@@ -459,9 +473,13 @@ class Client(object):
 
         *event*: :class:`ftrack_api.event.base.Event`
         '''
+        print("host discovered")
         if not event['data']:
+            print("No event data")
             return
+        print("with data")
         host_connection = HostConnection(self.event_manager, event['data'])
+        print("host connection conext ID : {}".format(host_connection.context_id))
         if (
             host_connection
             and host_connection not in self.host_connections
@@ -476,13 +494,17 @@ class Client(object):
 
         *host_connection*: :class:`ftrack_connect_pipeline.client.HostConnection`
         '''
-        if host_connection.context_id in [None, '']:
-            self.logger.warning(
-                'Not considering host connection {} - context ID not set!'.format(
-                    host_connection.id
-                )
-            )
-            return False
+        #TODO:
+        # On the discovery time context id could be None, so we have to consider hosts with non context id,
+        # and may be set a filter later. If no context id environment variable is set the context id will be none,
+        # but after discovering the host, the host may set up a context id, so in that moment the host is a valid host.
+        # if host_connection.context_id in [None, '']:
+        #     self.logger.warning(
+        #         'Not considering host connection {} - context ID not set!'.format(
+        #             host_connection.id
+        #         )
+        #     )
+        #     return False
         return True
 
     def change_host(self, host_connection):
@@ -499,6 +521,7 @@ class Client(object):
         pass
 
     # Context
+
 
     def subscribe_client_context_change(self):
         '''Have host connection subscribe to context change events, to be able

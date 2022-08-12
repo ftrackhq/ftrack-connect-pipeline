@@ -77,7 +77,7 @@ class Host(object):
         self.logger.warning(
             'ftrack host context is now: {}'.format(self.context_id)
         )
-        self._change_host_context_id()
+        self._ftrack_context_id_changed()
 
     @property
     def host_id(self):
@@ -169,14 +169,14 @@ class Host(object):
         packages dictionary coming from
         :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
         '''
-
+        print("on register definition")
         raw_result = event['data']
-
+        #print("on register definition data --> {}".format(raw_result))
         if not raw_result:
             return
 
         validated_result = self.validate(raw_result)
-
+        print("after validated_result")
         for key, value in list(validated_result.items()):
             logger.warning(
                 'Valid definitions : {} : {}'.format(key, len(value))
@@ -192,10 +192,14 @@ class Host(object):
             self.host_name,
         )
 
+        # TODO: if context_id is None, the event will be containing a None context id, even if we just setup the
+        #  context id after the registy. So a solution could be to discover a None context id host, or force to not
+        #  subscribe to this event until a context id in the host is set.
+        print("subscribe to pipeline discover host with event")
         self._event_manager.subscribe(
             constants.PIPELINE_DISCOVER_HOST, handle_event
         )
-
+        print("print subscribe to pipeline host run")
         self._event_manager.subscribe(
             '{} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_HOST_RUN, self.host_id
@@ -293,9 +297,9 @@ class Host(object):
         ''' Listen to context change events for this host and its connected clients'''
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_HOST_CONTEXT_CHANGE, self._host_id
+                constants.PIPELINE_CLIENT_CONTEXT_CHANGE, self._host_id
             ),
-            self._ftrack_context_id_changed,
+            self._change_context_id,
         )
 
     def reset(self):
@@ -322,18 +326,33 @@ class Host(object):
             event,
         )
 
-    def _change_host_context_id(self):
-        '''The context has been changed by user, send an event to picked up by clients.'''
+    # def _change_host_context_id(self):
+    #     '''The context has been changed by user, send an event to picked up by clients.'''
+    #     event = ftrack_api.event.base.Event(
+    #         topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
+    #         data={
+    #             'pipeline': {'host_id': self.host_id, 'context_id': self.context_id}
+    #         },
+    #     )
+    #     self._event_manager.publish(
+    #         event,
+    #     )
+
+    def _change_context_id(self, event):
+        if event['data']['pipeline']['host_id'] != self.host_id:
+            return
+        context_id = event['data']['pipeline']['context_id']
+        if context_id != self.context_id:
+            self.context_id = context_id
+
+
+    def _ftrack_context_id_changed(self):
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
             data={
-                'pipeline': {'host_id': self.id, 'context_id': self.context_id}
+                'pipeline': {'host_id': self.host_id, 'context_id': self.context_id}
             },
         )
-        self.event_manager.publish(
+        self._event_manager.publish(
             event,
         )
-
-    def _ftrack_context_id_changed(self, event):
-        if os.environ.get('FTRACK_CONTEXTID') != self.context_id:
-            self.context_id = event['context_id']
