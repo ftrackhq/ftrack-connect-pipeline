@@ -80,6 +80,7 @@ class PluginDiscoverValidation(object):
                     definition['name'],
                     schema_type,
                 ):
+                    print("context plugins not valid for definition {}".format(definition['name']))
                     valid_definition = False
             except Exception as e:
                 self.logger.error(
@@ -96,6 +97,7 @@ class PluginDiscoverValidation(object):
                     schema_type,
                 ):
                     valid_definition = False
+                    print("components plugins not valid for definition {}".format(definition['name']))
             except Exception as e:
                 self.logger.error(
                     'Could not validate {} components steps: {}'.format(
@@ -111,6 +113,7 @@ class PluginDiscoverValidation(object):
                     schema_type,
                 ):
                     valid_definition = False
+                    print(" finalizer plugins not valid for definition {}".format(definition['name']))
             except Exception as e:
                 self.logger.error(
                     'Could not validate {} finalizers steps: {}'.format(
@@ -119,6 +122,7 @@ class PluginDiscoverValidation(object):
                 )
                 valid_definition = False
             if not valid_definition:
+                print("notValid --> {}".format(definition))
                 idx = definitions.index(definition)
                 idxs_to_pop.append(idx)
                 self.logger.debug(
@@ -150,6 +154,7 @@ class PluginDiscoverValidation(object):
                 plugin_type = '{}.{}'.format(schema_type, stage_name)
                 for plugin in stage['plugins']:
                     if not self._discover_plugin(plugin, plugin_type):
+                        print("not valid plugin {} plugin type {}".format(plugin['plugin'], plugin_type))
                         is_valid = False
                         self.logger.debug(
                             'Could not discover plugin {} of type {} for stage {}'
