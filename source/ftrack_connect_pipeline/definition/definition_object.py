@@ -175,12 +175,9 @@ options.asset_name = 'testing'
 from ftrack_connect_pipeline.definition import definition_object
 a = {'a': 1, 'context':[{'category':'step', 'info': [{'category':'stage','info': [{'a': 4}]}]}]}
 tt = definition_object.DefinitionObject(a)
-st = tt.steps
-st
-st[0]
-st[0]['a'] = 123
+st = tt.steps[0]
+st['info']='qwe'
 tt
-
 
 
 #Doing it manually the dictionary is mutable
