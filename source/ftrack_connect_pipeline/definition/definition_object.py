@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-class DefinitionObject(dict):
+from collections.abc import MutableMapping
+
+
+class DefinitionObject(MutableMapping):
     '''Base DccObject class.'''
 
     # TODO: could be useful to have a unique id for each definition?
@@ -23,7 +26,7 @@ class DefinitionObject(dict):
         results = []
         for k, v in self._categories.items():
             for item in v:
-                if issubclass(type(item), dict):
+                if issubclass(type(item), DefinitionObject):
                     if item.get('name') == name:
                         if not type_name:
                             results.append(item)
@@ -39,7 +42,7 @@ class DefinitionObject(dict):
         results = []
         for k, v in self._categories.items():
             for item in v:
-                if issubclass(type(item), dict):
+                if issubclass(type(item), DefinitionObject):
                     if item.get('type') == type_name:
                         results.append(item)
         return results
@@ -50,27 +53,26 @@ class DefinitionObject(dict):
         '''
         return self._categories.get(category_name)
 
-    def __getattr__(self, item):
-        return self[item]
 
-    def __setattr__(self, item, value):
-        self[item] = value
-
-    def __init__(self, definition, **kwargs):
+    def __init__(self, definition):
         '''
         Convert the given definition to a DefinitionObject
         '''
-        super(DefinitionObject, self).__init__({}, **kwargs)
-        for key, value in definition.items():
-            self[key] = value
+        super(DefinitionObject, self).__setattr__('mapping', {})
+        self.update(definition)
+
+    def __getattr__(self, k):
+        return self.mapping[k]
+
+    def __setattr__(self, k, value):
+        self.mapping[k] = value
 
     def __getitem__(self, k):
         '''
         Get the value from the given *k*
         '''
 
-        value = super(DefinitionObject, self).__getitem__(k)
-        return value
+        return self.mapping[k]
 
     def __setitem__(self, k, v):
         '''
@@ -88,45 +90,7 @@ class DefinitionObject(dict):
         # If dictionary and valid category, convert to category object
         elif issubclass(type(v), dict):
             v = self.evaluate_item(v)
-        super(DefinitionObject, self).__setitem__(k, v)
-
-    def get(self, k, default=None):
-        '''
-        If exists, returns the value of the given *k* otherwise returns
-        *default*.
-
-        *k* : Key of the current dictionary.
-
-        *default* : Default value of the given Key.
-        '''
-        value = super(DefinitionObject, self).get(k, default)
-        return value
-
-    def update(self, *args, **kwargs):
-        '''
-        Updates the current keys and values with the given ones.
-        '''
-        # We override this method to make sure that the values are updated
-        # using the __setitem__ method
-        if args:
-            if len(args) > 1:
-                raise TypeError(
-                    "update expected at most 1 arguments, "
-                    "got %d" % len(args)
-                )
-            other = dict(args[0])
-            for key in other:
-                self[key] = other[key]
-        for key in kwargs:
-            self[key] = kwargs[key]
-
-    def setdefault(self, key, value=None):
-        '''
-        Sets a default value for the given key.
-        '''
-        if key not in self:
-            self[key] = value
-        return self[key]
+        self.mapping[k] = v
 
     def evaluate_item(self, item):
         '''
@@ -141,6 +105,19 @@ class DefinitionObject(dict):
                     item = cls(item)
         return item
 
+    def __delitem__(self, key):
+        del self.mapping[key]
+
+    def __iter__(self):
+        return iter(self.mapping)
+
+    def __len__(self):
+        return len(self.mapping)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({self.mapping})"
+
+
 
 class Step(DefinitionObject):
     def __init__(self, step):
@@ -154,6 +131,9 @@ class Stage(DefinitionObject):
 
 class Plugin(DefinitionObject):
 
+    def __init__(self, plugin):
+        super(Plugin, self).__init__(plugin)
+
     def __setitem__(self, k, v):
         '''
         Sets the given *v* into the given *k*
@@ -161,10 +141,7 @@ class Plugin(DefinitionObject):
         # Convert options to options object
         if k == 'options':
             v = Options(v)
-        super(DefinitionObject, self).__setitem__(k, v)
-
-    def __init__(self, plugin):
-        super(Plugin, self).__init__(plugin)
+        super(Plugin, self).__setitem__(k, v)
 
 
 class Options(DefinitionObject):
