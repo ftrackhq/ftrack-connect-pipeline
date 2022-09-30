@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 from collections.abc import MutableMapping, MutableSequence
+import copy
 
 
 class DefinitionObject(MutableMapping):
@@ -116,6 +117,17 @@ class DefinitionObject(MutableMapping):
 
     def __repr__(self):
         return f"{type(self).__name__}({self.mapping})"
+
+    def __copy__(self):
+        copy = self.__class__(self.mapping.copy())
+        return copy
+
+    # def __deepcopy__(self, memo):
+    #     result = self.__class__({})
+    #     memo[id(self.mapping)] = result
+    #     for k, v in self.mapping.items():
+    #         setattr(result, k, copy.deepcopy(v, memo))
+    #     return result
 
 
 
