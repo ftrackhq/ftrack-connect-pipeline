@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-from collections.abc import MutableMapping
+from collections.abc import MutableMapping, MutableSequence
 
 
 class DefinitionObject(MutableMapping):
@@ -150,7 +150,7 @@ class Options(DefinitionObject):
         super(Options, self).__init__(options)
 
 
-class DefinitionList(list):
+class DefinitionList(MutableSequence):
     valid_categories = ['step', 'stage', 'plugin']
     '''Definie valid categories that can be converted to custom dictionaries'''
 
@@ -161,30 +161,34 @@ class DefinitionList(list):
 
     def __init__(self, iterable):
         '''
-        Iterate over all the objects in the given *iterable* list, and convert
-        them to custom objects if they match a compatible category
+        Init the list given the *iterable* values
         '''
-        new_iter = []
-        for item in iterable:
-            # evaluate item before assign it
-            item = self.evaluate_item(item)
-            new_iter.append(item)
-        super(DefinitionList, self).__init__(new_iter)
+        self.list = list()
+        self.extend(iterable)
+
+    def __len__(self):
+        return len(self.list)
+
+    def __getitem__(self, i):
+        return self.list[i]
+
+    def __delitem__(self, i):
+        del self.list[i]
 
     def __setitem__(self, index, item):
         # evaluate item before assign it
         item = self.evaluate_item(item)
-        super(DefinitionList, self).__setitem__(index, item)
+        self.list[index] = item
 
     def insert(self, index, item):
         # evaluate item before assign it
         item = self.evaluate_item(item)
-        super(DefinitionList, self).insert(index, item)
+        self.list.insert(index, item)
 
     def append(self, item):
         # evaluate item before assign it
         item = self.evaluate_item(item)
-        super(DefinitionList, self).append(item)
+        self.list.append(item)
 
     def extend(self, items):
         new_iter = []
@@ -192,7 +196,10 @@ class DefinitionList(list):
             # evaluate item before assign it
             item = self.evaluate_item(item)
             new_iter.append(item)
-        super(DefinitionList, self).extend(new_iter)
+        self.list.extend(new_iter)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({self.list})"
 
     def evaluate_item(self, item):
         '''
