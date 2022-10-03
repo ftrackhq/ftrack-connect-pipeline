@@ -147,13 +147,16 @@ class DefinitionObject(dict):
         return self[key]
 
     def copy(self):  # don't delegate w/ super - dict.copy() -> dict :(
+        '''Method copy'''
         return type(self)(self)
 
     def __copy__(self):
+        ''' Copy implementation '''
         copy = self.__class__(self.copy())
         return copy
 
     def __deepcopy__(self, memo):
+        '''Deep copy implementation'''
         cls = self.__class__
         result = cls.__new__(cls)
         memo[id(self)] = result
@@ -163,17 +166,17 @@ class DefinitionObject(dict):
 
 
     def evaluate_item(self, item):
-            '''
-            Make sure item is converted to custom object if it's from a
-            compatible category
-            '''
-            if issubclass(type(item), dict):
-                category = item.get('category')
-                if category:
-                    if category in self.valid_categories:
-                        cls = eval(category.capitalize())
-                        item = cls(item)
-            return item
+        '''
+        Make sure item is converted to custom object if it's from a
+        compatible category
+        '''
+        if issubclass(type(item), dict):
+            category = item.get('category')
+            if category:
+                if category in self.valid_categories:
+                    cls = eval(category.capitalize())
+                    item = cls(item)
+        return item
 
 
 class Step(DefinitionObject):
