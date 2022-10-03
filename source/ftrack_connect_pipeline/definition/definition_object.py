@@ -1,10 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
+
+from collections.abc import MutableMapping, MutableSequence
 import copy
 
-_RaiseKeyError = object() # singleton for no-default behavior
 
-class DefinitionObject(dict):
+class DefinitionObject(MutableMapping):
     '''Base DccObject class.'''
 
     # TODO: could be useful to have a unique id for each definition?
@@ -26,7 +27,7 @@ class DefinitionObject(dict):
         results = []
         for k, v in self._categories.items():
             for item in v:
-                if issubclass(type(item), dict):
+                if issubclass(type(item), DefinitionObject):
                     if item.get('name') == name:
                         if not type_name:
                             results.append(item)
@@ -42,7 +43,7 @@ class DefinitionObject(dict):
         results = []
         for k, v in self._categories.items():
             for item in v:
-                if issubclass(type(item), dict):
+                if issubclass(type(item), DefinitionObject):
                     if item.get('type') == type_name:
                         results.append(item)
         return results
@@ -53,30 +54,25 @@ class DefinitionObject(dict):
         '''
         return self._categories.get(category_name)
 
-    def __getattr__(self, item):
-        return self[item]
-
-    def __setattr__(self, item, value):
-        self[item] = value
-
-    def __init__(self, definition, **kwargs):
+    def __init__(self, definition):
         '''
         Convert the given definition to a DefinitionObject
         '''
-        super(DefinitionObject, self).__init__({}, **kwargs)
-        for key, value in definition.items():
-            self[key] = value
+        super(DefinitionObject, self).__setattr__('mapping', {})
+        self.update(definition)
+
+    def __getattr__(self, k):
+        return self.mapping[k]
+
+    def __setattr__(self, k, value):
+        self.mapping[k] = value
 
     def __getitem__(self, k):
         '''
         Get the value from the given *k*
         '''
 
-        value = super(DefinitionObject, self).__getitem__(k)
-        return value
-
-    def __delitem__(self, k):
-        return super(DefinitionObject, self).__delitem__(k)
+        return self.mapping[k]
 
     def __setitem__(self, k, v):
         '''
@@ -94,76 +90,7 @@ class DefinitionObject(dict):
         # If dictionary and valid category, convert to category object
         elif issubclass(type(v), dict):
             v = self.evaluate_item(v)
-        super(DefinitionObject, self).__setitem__(k, v)
-
-    def pop(self, k, v=_RaiseKeyError):
-        if v is _RaiseKeyError:
-            return super(DefinitionObject, self).pop(k)
-        return super(DefinitionObject, self).pop(k, v)
-
-    def __contains__(self, k):
-        return super(DefinitionObject, self).__contains__(k)
-
-    @classmethod
-    def fromkeys(cls, keys, v=None):
-        return super(DefinitionObject, cls).fromkeys((k for k in keys), v)
-
-    def get(self, k, default=None):
-        '''
-        If exists, returns the value of the given *k* otherwise returns
-        *default*.
-
-        *k* : Key of the current dictionary.
-
-        *default* : Default value of the given Key.
-        '''
-        value = super(DefinitionObject, self).get(k, default)
-        return value
-
-    def update(self, *args, **kwargs):
-        '''
-        Updates the current keys and values with the given ones.
-        '''
-        # We override this method to make sure that the values are updated
-        # using the __setitem__ method
-        if args:
-            if len(args) > 1:
-                raise TypeError(
-                    "update expected at most 1 arguments, "
-                    "got %d" % len(args)
-                )
-            other = dict(args[0])
-            for key in other:
-                self[key] = other[key]
-        for key in kwargs:
-            self[key] = kwargs[key]
-
-    def setdefault(self, key, value=None):
-        '''
-        Sets a default value for the given key.
-        '''
-        if key not in self:
-            self[key] = value
-        return self[key]
-
-    def copy(self):  # don't delegate w/ super - dict.copy() -> dict :(
-        '''Method copy'''
-        return type(self)(self)
-
-    def __copy__(self):
-        ''' Copy implementation '''
-        copy = self.__class__(self.copy())
-        return copy
-
-    def __deepcopy__(self, memo):
-        '''Deep copy implementation'''
-        cls = self.__class__
-        result = cls.__new__(cls)
-        memo[id(self)] = result
-        for k, v in self.items():
-            setattr(result, k, copy.deepcopy(v, memo))
-        return result
-
+        self.mapping[k] = v
 
     def evaluate_item(self, item):
         '''
@@ -177,6 +104,42 @@ class DefinitionObject(dict):
                     cls = eval(category.capitalize())
                     item = cls(item)
         return item
+
+    def __delitem__(self, key):
+        del self.mapping[key]
+
+    def __iter__(self):
+        return iter(self.mapping)
+
+    def __len__(self):
+        return len(self.mapping)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({self.mapping})"
+
+    def __copy__(self, deep=False):
+        ''' Copy implementation'''
+        cls = self.__class__
+        data = object.__getattribute__(
+            self, 'mapping')
+
+        if deep:
+            data = copy.deepcopy(
+                data
+            )
+
+        return cls(
+            data
+        )
+
+    def __deepcopy__(self, memodict={}):
+        '''Deep copy implementation'''
+        return self.__copy__(True)
+
+    def copy(self):
+        '''match the copy method of a dictionary'''
+        return self.__copy__(False)
+
 
 
 class Step(DefinitionObject):
@@ -210,7 +173,7 @@ class Options(DefinitionObject):
         super(Options, self).__init__(options)
 
 
-class DefinitionList(list):
+class DefinitionList(MutableSequence):
     valid_categories = ['step', 'stage', 'plugin']
     '''Definie valid categories that can be converted to custom dictionaries'''
 
@@ -221,30 +184,34 @@ class DefinitionList(list):
 
     def __init__(self, iterable):
         '''
-        Iterate over all the objects in the given *iterable* list, and convert
-        them to custom objects if they match a compatible category
+        Init the list given the *iterable* values
         '''
-        new_iter = []
-        for item in iterable:
-            # evaluate item before assign it
-            item = self.evaluate_item(item)
-            new_iter.append(item)
-        super(DefinitionList, self).__init__(new_iter)
+        self.list = list()
+        self.extend(iterable)
+
+    def __len__(self):
+        return len(self.list)
+
+    def __getitem__(self, i):
+        return self.list[i]
+
+    def __delitem__(self, i):
+        del self.list[i]
 
     def __setitem__(self, index, item):
         # evaluate item before assign it
         item = self.evaluate_item(item)
-        super(DefinitionList, self).__setitem__(index, item)
+        self.list[index] = item
 
     def insert(self, index, item):
         # evaluate item before assign it
         item = self.evaluate_item(item)
-        super(DefinitionList, self).insert(index, item)
+        self.list.insert(index, item)
 
     def append(self, item):
         # evaluate item before assign it
         item = self.evaluate_item(item)
-        super(DefinitionList, self).append(item)
+        self.list.append(item)
 
     def extend(self, items):
         new_iter = []
@@ -252,7 +219,10 @@ class DefinitionList(list):
             # evaluate item before assign it
             item = self.evaluate_item(item)
             new_iter.append(item)
-        super(DefinitionList, self).extend(new_iter)
+        self.list.extend(new_iter)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({self.list})"
 
     def evaluate_item(self, item):
         '''
