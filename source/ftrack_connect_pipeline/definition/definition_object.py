@@ -3,7 +3,9 @@
 
 from collections.abc import MutableMapping, MutableSequence
 import copy
+import json
 
+from ftrack_connect_pipeline import constants as core_constants
 
 class DefinitionObject(MutableMapping):
     '''Base DccObject class.'''
@@ -11,9 +13,6 @@ class DefinitionObject(MutableMapping):
     # TODO: could be useful to have a unique id for each definition?
     definition_id = None
     '''Definition id used to unique identify definitions. Not implemented yet '''
-
-    valid_categories = ['step', 'stage', 'plugin']
-    '''Definie valid categories that can be converted to custom dictionaries'''
 
     _categories = {}
     '''Holds all the custom categories on the current definition'''
@@ -100,7 +99,7 @@ class DefinitionObject(MutableMapping):
         if issubclass(type(item), dict):
             category = item.get('category')
             if category:
-                if category in self.valid_categories:
+                if category in core_constants.CATEGORIES:
                     cls = eval(category.capitalize())
                     item = cls(item)
         return item
@@ -139,8 +138,21 @@ class DefinitionObject(MutableMapping):
     def copy(self):
         '''match the copy method of a dictionary'''
         return self.__copy__(False)
+    
+    def to_dict(self):
+        '''Return dictionary type base on current data'''
+        new_mapping = {}
+        for k, v in self.mapping.items():
+            if issubclass(type(v), DefinitionObject):
+                v = v.to_dict()
+            if issubclass(type(v), DefinitionList):
+                v = v.to_list()
+            new_mapping[k] = v
+        return new_mapping
 
-
+    def to_json(self, indent=None):
+        '''Return json object of the internal mapping'''
+        return json.dumps(self.to_dict(), indent=indent)
 
 class Step(DefinitionObject):
     def __init__(self, step):
@@ -174,8 +186,6 @@ class Options(DefinitionObject):
 
 
 class DefinitionList(MutableSequence):
-    valid_categories = ['step', 'stage', 'plugin']
-    '''Definie valid categories that can be converted to custom dictionaries'''
 
     # We use the category to identify the type of definition list in
     # the definition object
@@ -204,16 +214,19 @@ class DefinitionList(MutableSequence):
         self.list[index] = item
 
     def insert(self, index, item):
+        '''Insert given *item* on the given *index*'''
         # evaluate item before assign it
         item = self.evaluate_item(item)
         self.list.insert(index, item)
 
     def append(self, item):
+        '''Append given *item* on the internal list'''
         # evaluate item before assign it
         item = self.evaluate_item(item)
         self.list.append(item)
 
     def extend(self, items):
+        '''Extend internal list with the current *items*'''
         new_iter = []
         for item in items:
             # evaluate item before assign it
@@ -224,6 +237,21 @@ class DefinitionList(MutableSequence):
     def __repr__(self):
         return f"{type(self).__name__}({self.list})"
 
+    def to_list(self):
+        '''Return dictionary type base on current data'''
+        new_list =[]
+        for item in self.list:
+            if issubclass(type(item), DefinitionObject):
+                item = item.to_dict()
+            if issubclass(type(item), DefinitionList):
+                item = item.to_list()
+            new_list.append(item)
+        return new_list
+
+    def to_json(self, indent=None):
+        '''Return json object of the internal list'''
+        return json.dumps(self.to_list(), indent=indent)
+
     def evaluate_item(self, item):
         '''
         Make sure item is converted to custom object if it's from a
@@ -232,7 +260,7 @@ class DefinitionList(MutableSequence):
         if issubclass(type(item), dict):
             category = item.get('category')
             if category:
-                if category in self.valid_categories:
+                if category in core_constants.CATEGORIES:
                     cls = eval(category.capitalize())
                     item = cls(item)
                     # Set up the category of the list
