@@ -9,6 +9,16 @@ HOST_TYPE = 'python'
 #: Base name for events
 _BASE_ = 'ftrack.pipeline'
 
+# Valid Categories
+#: Step Category.
+STEP = 'step'
+#: Stage Category.
+STAGE = 'stage'
+#: Plugin Category.
+PLUGIN = 'plugin'
+
+CATEGORIES = [STEP, STAGE, PLUGIN]
+
 # Common steps.
 #: Contexts step group.
 CONTEXTS = 'contexts'
