@@ -5,7 +5,6 @@ from collections.abc import MutableMapping, MutableSequence
 import copy
 import json
 
-from ftrack_connect_pipeline import constants as core_constants
 
 class DefinitionObject(MutableMapping):
     '''Base DccObject class.'''
@@ -96,12 +95,14 @@ class DefinitionObject(MutableMapping):
         Make sure item is converted to custom object if it's from a
         compatible category
         '''
+        classes = dict(
+            [(cls.__name__, cls) for cls in DefinitionObject.__subclasses__()]
+        )
         if issubclass(type(item), dict):
             category = item.get('category')
             if category:
-                if category in core_constants.CATEGORIES:
-                    cls = eval(category.capitalize())
-                    item = cls(item)
+                if category.capitalize() in classes:
+                    item = classes[category.capitalize()](item)
         return item
 
     def __delitem__(self, key):
@@ -257,12 +258,14 @@ class DefinitionList(MutableSequence):
         Make sure item is converted to custom object if it's from a
         compatible category
         '''
+        classes = dict(
+            [(cls.__name__, cls) for cls in DefinitionObject.__subclasses__()]
+        )
         if issubclass(type(item), dict):
             category = item.get('category')
             if category:
-                if category in core_constants.CATEGORIES:
-                    cls = eval(category.capitalize())
-                    item = cls(item)
+                if category.capitalize() in classes:
+                    item = classes[category.capitalize()](item)
                     # Set up the category of the list
                     self.category = category
         return item
