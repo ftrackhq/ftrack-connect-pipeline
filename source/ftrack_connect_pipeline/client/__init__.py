@@ -11,6 +11,8 @@ import ftrack_api
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.log import LogDB
 from ftrack_connect_pipeline.log.log_item import LogItem
+from ftrack_connect_pipeline.definition import definition_object
+
 
 
 class HostConnection(object):
@@ -72,9 +74,15 @@ class HostConnection(object):
                     context_identifiers,
                     self._raw_host_data['definition'][schema_title],
                 )
+            # TODO:
+            #  This is a dictionary where the keys are the definition types like
+            #  publisher, opener, etc... and the values are a list of those.
+            #  But it also includes the key Schema, which contains a list of the
+            #  schemas for each type. This should be cleaned up in the future in
+            #  order to separate schemas from the definitions.
             return copy.deepcopy(result)
 
-        return copy.deepcopy(self._raw_host_data['definition'])
+        return definition_object.DefinitionObject(self._raw_host_data['definition'])
 
     def _filter_definitions(self, context_identifiers, definitions):
         '''Filter *definitions* on *context_identifiers* and discoverable.'''
@@ -107,7 +115,9 @@ class HostConnection(object):
             if match:
                 result.append(definition)
 
-        return result
+        # Convert the list to our custom DefinitionList so we can have get
+        # method and automatically convert all definitions to definitionObject
+        return definition_object.DefinitionList(result)
 
     @property
     def id(self):
@@ -515,20 +525,49 @@ class Client(object):
 
     # Definition
 
-    def run_definition(self, definition, engine_type):
+    def run_definition(self, definition=None, engine_type=None):
         '''
         Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         to run the entire given *definition* with the given *engine_type*.
 
         Callback received at :meth:`_run_callback`
         '''
+        # If not definition or engine type passed use the original ones set up
+        # in the client
+        if not definition:
+            definition = self.definition
+        if not engine_type:
+            engine_type = self.engine_type
         self.host_connection.run(
             definition,
             engine_type,
             callback=self._run_callback,
         )
 
-    def change_definition(self, schema, definition):
+    def get_schema_from_definition(self, definition):
+        '''Return matching schema for the given *definition*'''
+        if not self.host_connection:
+            self.logger.error("please set the host connection first")
+            return
+        for schema in self.host_connection.definitions['schema']:
+            if schema['properties']['type'].get('default') == definition['type']:
+                return schema
+
+            self.logger.debug(
+                "Schema title: {} and type: {} does not match definition {}".format(
+                    schema['title'], schema['properties']['type'].get('default'),
+                    definition['name']
+                )
+            )
+
+        self.logger.error(
+            "Can't find a matching schema for the given definition: {}".format(
+                definition.name
+            )
+        )
+        return
+
+    def change_definition(self, definition, schema=None):
         '''
         Assign the given *schema* and the given *definition* as the current
         :obj:`schema` and :obj:`definition`
@@ -537,6 +576,8 @@ class Client(object):
             self.logger.error("please set the host connection first")
             return
 
+        if not schema:
+            schema = self.get_schema_from_definition(definition)
         self._schema = schema
         self._definition = definition
         self.change_engine(self.definition['_config']['engine_type'])
