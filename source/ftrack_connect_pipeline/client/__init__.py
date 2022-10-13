@@ -14,7 +14,6 @@ from ftrack_connect_pipeline.log.log_item import LogItem
 from ftrack_connect_pipeline.definition import definition_object
 
 
-
 class HostConnection(object):
     '''
     Host Connection Base class.
@@ -342,6 +341,13 @@ class Client(object):
     def definition(self):
         '''Returns the current definition.'''
         return self._definition
+
+    @property
+    def definitions(self):
+        '''Returns the definitions list of the current host connection'''
+        if self.host_connection is None:
+            raise Exception('No host connection available')
+        return self.host_connection.definitions
 
     @property
     def engine_type(self):
