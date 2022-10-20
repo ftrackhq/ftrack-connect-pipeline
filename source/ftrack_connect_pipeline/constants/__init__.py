@@ -61,6 +61,8 @@ ASSET_MANAGER = 'asset_manager'
 # Log viewer dialog
 LOG_VIEWER = 'log_viewer'
 
+DEFINITION_TYPES = [OPENER, LOADER, PUBLISHER, ASSET_MANAGER]
+
 # External events.
 #: Pipeline register topic event. Published by the
 #: :class:`~ftrack_connect_pipeline.host.Host` and used to register
