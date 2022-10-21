@@ -545,7 +545,7 @@ class Client(object):
         if not engine_type:
             engine_type = self.engine_type
         self.host_connection.run(
-            definition,
+            definition.to_dict(),
             engine_type,
             callback=self._run_callback,
         )
