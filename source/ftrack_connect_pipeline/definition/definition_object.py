@@ -50,7 +50,7 @@ class DefinitionObject(MutableMapping):
         '''
         Return first item that match key and values from the given *kwargs*.
         '''
-        return self.get_all(first=True, **kwargs)
+        return self.get_all(first=True, **kwargs) or None
 
     def __init__(self, definition):
         '''
@@ -208,7 +208,7 @@ class DefinitionList(MutableSequence):
         '''
         Return first item that match key and values from the given *kwargs*.
         '''
-        return self.get_all(first=True, **kwargs)
+        return self.get_all(first=True, **kwargs) or None
 
     def __init__(self, iterable):
         '''
