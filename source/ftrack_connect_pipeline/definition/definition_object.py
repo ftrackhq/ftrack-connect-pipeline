@@ -34,9 +34,8 @@ class DefinitionObject(MutableMapping):
         # Recursively iterate over all the values in case we have DefinitionList or
         # DefinitionObjects to look into them
         for v in self.mapping.values():
-            if (
-                    issubclass(type(v), DefinitionList) or
-                    issubclass(type(v), DefinitionObject)
+            if issubclass(type(v), DefinitionList) or issubclass(
+                type(v), DefinitionObject
             ):
                 # Call the get_all function of the current object
                 result = v.get_all(first=first, **kwargs)
@@ -113,19 +112,14 @@ class DefinitionObject(MutableMapping):
         return f"{type(self).__name__}({self.mapping})"
 
     def __copy__(self, deep=False):
-        ''' Copy implementation'''
+        '''Copy implementation'''
         cls = self.__class__
-        data = object.__getattribute__(
-            self, 'mapping')
+        data = object.__getattribute__(self, 'mapping')
 
         if deep:
-            data = copy.deepcopy(
-                data
-            )
+            data = copy.deepcopy(data)
 
-        return cls(
-            data
-        )
+        return cls(data)
 
     def __deepcopy__(self, memodict={}):
         '''Deep copy implementation'''
@@ -134,7 +128,7 @@ class DefinitionObject(MutableMapping):
     def copy(self):
         '''match the copy method of a dictionary'''
         return self.__copy__(False)
-    
+
     def to_dict(self):
         '''Return dictionary type base on current data'''
         new_mapping = {}
@@ -162,7 +156,6 @@ class Stage(DefinitionObject):
 
 
 class Plugin(DefinitionObject):
-
     def __init__(self, plugin):
         super(Plugin, self).__init__(plugin)
 
@@ -177,13 +170,11 @@ class Plugin(DefinitionObject):
 
 
 class Options(DefinitionObject):
-
     def __init__(self, options):
         super(Options, self).__init__(options)
 
 
 class DefinitionList(MutableSequence):
-
     def get_all(self, first=False, **kwargs):
         '''
         Return all items that match key and values from the given *kwargs*.
@@ -192,9 +183,8 @@ class DefinitionList(MutableSequence):
         # Recursively iterate over all items in the internal list to check if
         # they match the kwargs
         for item in self.list:
-            if (
-                    issubclass(type(item), DefinitionList) or
-                    issubclass(type(item), DefinitionObject)
+            if issubclass(type(item), DefinitionList) or issubclass(
+                type(item), DefinitionObject
             ):
                 result = item.get_all(first=first, **kwargs)
                 # Return the first value that matches if first is true
@@ -260,7 +250,7 @@ class DefinitionList(MutableSequence):
 
     def to_list(self):
         '''Return dictionary type base on current data'''
-        new_list =[]
+        new_list = []
         for item in self.list:
             if issubclass(type(item), DefinitionObject):
                 item = item.to_dict()
@@ -293,4 +283,3 @@ class DefinitionList(MutableSequence):
                         # Set up the category of the list
                         self.category = category
         return item
-

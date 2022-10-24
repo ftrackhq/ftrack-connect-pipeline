@@ -81,7 +81,9 @@ class HostConnection(object):
             #  order to separate schemas from the definitions.
             return copy.deepcopy(result)
 
-        return definition_object.DefinitionObject(self._raw_host_data['definition'])
+        return definition_object.DefinitionObject(
+            self._raw_host_data['definition']
+        )
 
     def _filter_definitions(self, context_identifiers, definitions):
         '''Filter *definitions* on *context_identifiers* and discoverable.'''
@@ -556,13 +558,17 @@ class Client(object):
             self.logger.error("please set the host connection first")
             return
         for schema in self.host_connection.definitions['schema']:
-            if schema['properties']['type'].get('default') == definition['type']:
+            if (
+                schema['properties']['type'].get('default')
+                == definition['type']
+            ):
                 return schema
 
             self.logger.debug(
                 "Schema title: {} and type: {} does not match definition {}".format(
-                    schema['title'], schema['properties']['type'].get('default'),
-                    definition['name']
+                    schema['title'],
+                    schema['properties']['type'].get('default'),
+                    definition['name'],
                 )
             )
 
