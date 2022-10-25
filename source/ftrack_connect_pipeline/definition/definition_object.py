@@ -5,52 +5,51 @@ from collections.abc import MutableMapping, MutableSequence
 import copy
 import json
 
+from ftrack_connect_pipeline import constants
+
 
 class DefinitionObject(MutableMapping):
     '''Base DccObject class.'''
 
-    # TODO: could be useful to have a unique id for each definition?
-    definition_id = None
-    '''Definition id used to unique identify definitions. Not implemented yet '''
-
-    _categories = {}
-    '''Holds all the custom categories on the current definition'''
-
-    def get_by_name(self, name, type_name=None):
+    def get_all(self, first=False, **kwargs):
         '''
-        Returns all the objects with the given *name* in the definition.
-        *type_name* can optionally be passed to filter by name and type at the
-        same time.
+        Return all items that match key and values from the given *kwargs*.
+        If *first* is true will return only the first object that matches the
+        given *kwargs*.
         '''
+        # Example kwargs --> type=context, name=main
         results = []
-        for k, v in self._categories.items():
-            for item in v:
-                if issubclass(type(item), DefinitionObject):
-                    if item.get('name') == name:
-                        if not type_name:
-                            results.append(item)
-                            continue
-                        if item.get('type') == type_name:
-                            results.append(item)
+        match = True
+        for k, v in kwargs.items():
+            # If key not in self or v not match to the k value jump out
+            if self.mapping.get(k) != v:
+                match = False
+                break
+        # Return the object in case is matching and first is true
+        if match and first:
+            return self
+        # Append the object to the all matching results
+        elif match:
+            results.append(self)
+        # Recursively iterate over all the values in case we have DefinitionList or
+        # DefinitionObjects to look into them
+        for v in self.mapping.values():
+            if issubclass(type(v), DefinitionList) or issubclass(
+                type(v), DefinitionObject
+            ):
+                # Call the get_all function of the current object
+                result = v.get_all(first=first, **kwargs)
+                if result and first:
+                    return result
+                if result:
+                    results.extend(result)
         return results
 
-    def get_by_type(self, type_name):
+    def get_first(self, **kwargs):
         '''
-        Returns all the objects with the given *type_name* in the definition.
+        Return first item that match key and values from the given *kwargs*.
         '''
-        results = []
-        for k, v in self._categories.items():
-            for item in v:
-                if issubclass(type(item), DefinitionObject):
-                    if item.get('type') == type_name:
-                        results.append(item)
-        return results
-
-    def get_by_category(self, category_name):
-        '''
-        Returns all the objects with the given *category_name* in the definition.
-        '''
-        return self._categories.get(category_name)
+        return self.get_all(first=True, **kwargs) or None
 
     def __init__(self, definition):
         '''
@@ -79,11 +78,6 @@ class DefinitionObject(MutableMapping):
         # If list convert to definition list
         if type(v) == list:
             v = DefinitionList(v)
-            # Save and clasify the list object to it's category to quickly query them on the properties
-            if v.category in list(self._categories.keys()):
-                self._categories[v.category].extend(v)
-            else:
-                self._categories[v.category] = list(item for item in v)
 
         # If dictionary and valid category, convert to category object
         elif issubclass(type(v), dict):
@@ -118,19 +112,14 @@ class DefinitionObject(MutableMapping):
         return f"{type(self).__name__}({self.mapping})"
 
     def __copy__(self, deep=False):
-        ''' Copy implementation'''
+        '''Copy implementation'''
         cls = self.__class__
-        data = object.__getattribute__(
-            self, 'mapping')
+        data = object.__getattribute__(self, 'mapping')
 
         if deep:
-            data = copy.deepcopy(
-                data
-            )
+            data = copy.deepcopy(data)
 
-        return cls(
-            data
-        )
+        return cls(data)
 
     def __deepcopy__(self, memodict={}):
         '''Deep copy implementation'''
@@ -139,7 +128,7 @@ class DefinitionObject(MutableMapping):
     def copy(self):
         '''match the copy method of a dictionary'''
         return self.__copy__(False)
-    
+
     def to_dict(self):
         '''Return dictionary type base on current data'''
         new_mapping = {}
@@ -155,6 +144,7 @@ class DefinitionObject(MutableMapping):
         '''Return json object of the internal mapping'''
         return json.dumps(self.to_dict(), indent=indent)
 
+
 class Step(DefinitionObject):
     def __init__(self, step):
         super(Step, self).__init__(step)
@@ -166,7 +156,6 @@ class Stage(DefinitionObject):
 
 
 class Plugin(DefinitionObject):
-
     def __init__(self, plugin):
         super(Plugin, self).__init__(plugin)
 
@@ -181,22 +170,43 @@ class Plugin(DefinitionObject):
 
 
 class Options(DefinitionObject):
-
     def __init__(self, options):
         super(Options, self).__init__(options)
 
 
 class DefinitionList(MutableSequence):
+    def get_all(self, first=False, **kwargs):
+        '''
+        Return all items that match key and values from the given *kwargs*.
+        '''
+        results = []
+        # Recursively iterate over all items in the internal list to check if
+        # they match the kwargs
+        for item in self.list:
+            if issubclass(type(item), DefinitionList) or issubclass(
+                type(item), DefinitionObject
+            ):
+                result = item.get_all(first=first, **kwargs)
+                # Return the first value that matches if first is true
+                if result and first:
+                    return result
+                elif result:
+                    results.extend(result)
+        return results
 
-    # We use the category to identify the type of definition list in
-    # the definition object
-    category = None
-    '''Category of the definition list given by the definition'''
+    def get_first(self, **kwargs):
+        '''
+        Return first item that match key and values from the given *kwargs*.
+        '''
+        return self.get_all(first=True, **kwargs) or None
 
     def __init__(self, iterable):
         '''
         Init the list given the *iterable* values
         '''
+        # We use the category to identify the type of definition list in
+        # the definition object
+        self.category = None
         self.list = list()
         self.extend(iterable)
 
@@ -240,7 +250,7 @@ class DefinitionList(MutableSequence):
 
     def to_list(self):
         '''Return dictionary type base on current data'''
-        new_list =[]
+        new_list = []
         for item in self.list:
             if issubclass(type(item), DefinitionObject):
                 item = item.to_dict()
@@ -262,11 +272,14 @@ class DefinitionList(MutableSequence):
             [(cls.__name__, cls) for cls in DefinitionObject.__subclasses__()]
         )
         if issubclass(type(item), dict):
-            category = item.get('category')
-            if category:
-                if category.capitalize() in classes:
-                    item = classes[category.capitalize()](item)
-                    # Set up the category of the list
-                    self.category = category
+            def_type = item.get('type')
+            if def_type in constants.DEFINITION_TYPES:
+                item = DefinitionObject(item)
+            else:
+                category = item.get('category')
+                if category:
+                    if category.capitalize() in classes:
+                        item = classes[category.capitalize()](item)
+                        # Set up the category of the list
+                        self.category = category
         return item
-
