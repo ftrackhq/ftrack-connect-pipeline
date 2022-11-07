@@ -37,10 +37,10 @@ All the definitions with host_type maya and python will be discovered.
 
 .. warning::
 
-    Maya has to be launched using connect otherwise the user will have to
-    manually setup all the environment variables for maya to be able to run the
-    framework. We are working on providing an easy way to launch maya by command
-    with the framework pre-loaded.
+    DCC launch is subject to be improved in future releases of the framework,
+    making it possible to share launcher with Connect to enable consistent and
+    context aware framework setup. For now we highly recommend to launch DCC from
+    connect to avoid having to manually setup all the environment variables.
 
 **mypipeline/standalone-snippets/maya_standalone_publish_snippet.py**
 
