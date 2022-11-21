@@ -58,6 +58,11 @@ Discover Framework from Standalone DCC
 These are the necessary environment variables that has to be setup for the
 framework to be discovered in a DCC application without launching from connect.
 
+.. warning::
+
+    This is a maya example. Please replace maya and the plugin version for your
+    desired DCC and plugin version.
+
 .. list-table:: Required Environment Variables:
    :widths: 25 75
    :header-rows: 1
