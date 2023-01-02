@@ -125,8 +125,15 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         asset_type_entity = self.session.query(
             'AssetType where short is "{}"'.format(asset_type_name)
         ).first()
-
-        asset_parent_object = context_object['parent']
+        
+        if 'asset_parent_context_id' in context_data:
+            asset_parent_object = self.session.query(
+                'select name, parent, parent.name from Context where id is "{}"'.format(
+                    context_data['asset_parent_context_id']
+                )
+            ).one()
+        else:
+            asset_parent_object = context_object['parent']
 
         asset_entity = self.session.query(
             'Asset where name is "{}" and type.short is "{}" and '
