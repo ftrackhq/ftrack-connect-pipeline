@@ -128,7 +128,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         
         if 'asset_parent_context_id' in context_data:
             asset_parent_object = self.session.query(
-                'select name, parent, parent.name from Context where id is "{}"'.format(
+                'select name from Context where id is "{}"'.format(
                     context_data['asset_parent_context_id']
                 )
             ).one()
