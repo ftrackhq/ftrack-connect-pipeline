@@ -125,7 +125,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         asset_type_entity = self.session.query(
             'AssetType where short is "{}"'.format(asset_type_name)
         ).first()
-        
+
         if 'asset_parent_context_id' in context_data:
             asset_parent_object = self.session.query(
                 'select name, parent, parent.name from Context where id is "{}"'.format(
@@ -151,6 +151,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
                     'parent': asset_parent_object,
                 },
             )
+            self.logger.debug('Successfully created asset: {}'.format(asset_name))
 
         rollback = False
         try:
@@ -169,6 +170,8 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
                     asset_version_entity['uses_versions'].append(dependency)
 
             self.session.commit()
+
+            self.logger.debug('Successfully created assetversion: {}'.format(asset_version_entity['version']))
 
             rollback = True  # Undo version creation from this point
 

@@ -49,6 +49,7 @@ IMPORTER = 'importer'
 #: Post_import component stage name.
 POST_IMPORTER = 'post_importer'
 
+
 # Common definition/client types.
 #: Opener client and its definition.
 OPENER = 'opener'
