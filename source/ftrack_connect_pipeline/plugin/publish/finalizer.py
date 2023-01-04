@@ -151,7 +151,9 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
                     'parent': asset_parent_object,
                 },
             )
-            self.logger.debug('Successfully created asset: {}'.format(asset_name))
+            self.logger.debug(
+                'Successfully created asset: {}'.format(asset_name)
+            )
 
         rollback = False
         try:
@@ -171,7 +173,11 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
 
             self.session.commit()
 
-            self.logger.debug('Successfully created assetversion: {}'.format(asset_version_entity['version']))
+            self.logger.debug(
+                'Successfully created assetversion: {}'.format(
+                    asset_version_entity['version']
+                )
+            )
 
             rollback = True  # Undo version creation from this point
 
