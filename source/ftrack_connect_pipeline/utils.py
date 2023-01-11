@@ -18,10 +18,12 @@ def str_context(context, with_id=False, force_version_nr=None, delimiter='/'):
     ).replace('/', delimiter)
 
 
-def str_version(v, with_id=False, force_version_nr=None, delimiter='/'):
+def str_version(
+    v, with_id=False, force_version_nr=None, by_task=True, delimiter='/'
+):
     '''Utility function to produce a human readable string out or an asset version.'''
     return '{}/{}/v{}{}'.format(
-        str_context(v['task']),
+        str_context(v['task'] if by_task else v['asset']['parent']),
         v['asset']['name'],
         force_version_nr or v['version'],
         ('({})'.format(v['id']) if with_id else ''),
