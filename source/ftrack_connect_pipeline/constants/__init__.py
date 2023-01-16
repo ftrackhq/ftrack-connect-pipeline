@@ -57,8 +57,6 @@ OPENER = 'opener'
 LOADER = 'loader'
 #: Publisher client and its definition.
 PUBLISHER = 'publisher'
-#: Batch bublisher client and its definition.
-BATCH_PUBLISHER = 'batch_publisher'
 # Asset manager
 ASSET_MANAGER = 'asset_manager'
 # Log viewer dialog
