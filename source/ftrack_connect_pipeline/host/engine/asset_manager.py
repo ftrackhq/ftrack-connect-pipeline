@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 import copy
 import time
+import os
 
 from ftrack_connect_pipeline.host.engine import BaseEngine
 from ftrack_connect_pipeline import constants
@@ -676,6 +677,17 @@ class AssetManagerEngine(BaseEngine):
                 new_asset_info_options['pipeline']['method']
             ]['dcc_object']
             new_asset_info[asset_const.REFERENCE_OBJECT] = new_dcc_object.name
+
+            # TODO: Check if this code is necesary or it's already well set on the run plugin evet
+            # Check file size and mod time
+            mod_date = None
+            file_size = None
+            if component_path:
+                mod_date = os.path.getmtime(component_path)
+                file_size = os.path.getsize(component_path)
+
+            new_asset_info[asset_const.MOD_DATETIME] = mod_date
+            new_asset_info[asset_const.FILE_SIZE] = file_size
 
             self.asset_info = new_asset_info
             self.dcc_object = new_dcc_object

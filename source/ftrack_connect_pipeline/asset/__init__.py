@@ -100,6 +100,22 @@ class FtrackObjectManager(object):
         if self.dcc_object:
             self.dcc_object.objects_loaded = value
 
+    @property
+    def is_snapshot(self):
+        '''
+        Returns whether the objects are loaded in the scene or not.
+        '''
+        return self.asset_info[asset_const.IS_SNAPSHOT]
+
+    @is_snapshot.setter
+    def is_snapshot(self, value):
+        '''
+        Set the self :obj:`asset_info` as is_snapshot.
+        '''
+        self.asset_info[asset_const.IS_SNAPSHOT] = value
+        if self.dcc_object:
+            self.dcc_object.is_snapshot = value
+
     def __init__(self, event_manager):
         '''
         Initialize FtrackObjectManager with instance of
