@@ -75,7 +75,7 @@ IS_SNAPSHOT = 'is_snapshot'
 #: Modification time of the file.
 #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
 #: and the DCC ftrack plugin.
-MOD_DATETIME = 'mod_datetime'
+MOD_DATE = 'mod_date'
 #: Size of the file.
 #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
 #: and the DCC ftrack plugin.
@@ -104,6 +104,6 @@ KEYS = [
     DEPENDENCY_IDS,
     OBJECTS_LOADED,
     IS_SNAPSHOT,
-    MOD_DATETIME,
+    MOD_DATE,
     FILE_SIZE,
 ]

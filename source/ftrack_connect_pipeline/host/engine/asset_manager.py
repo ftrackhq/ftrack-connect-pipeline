@@ -686,7 +686,7 @@ class AssetManagerEngine(BaseEngine):
                 mod_date = os.path.getmtime(component_path)
                 file_size = os.path.getsize(component_path)
 
-            new_asset_info[asset_const.MOD_DATETIME] = mod_date
+            new_asset_info[asset_const.MOD_DATE] = mod_date
             new_asset_info[asset_const.FILE_SIZE] = file_size
 
             self.asset_info = new_asset_info

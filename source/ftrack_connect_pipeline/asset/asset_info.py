@@ -104,7 +104,7 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
         mod_date = os.path.getmtime(arguments_dict.get(constants.COMPONENT_PATH))
         file_size = os.path.getsize(arguments_dict.get(constants.COMPONENT_PATH))
 
-    arguments_dict[constants.MOD_DATETIME] = mod_date
+    arguments_dict[constants.MOD_DATE] = mod_date
     arguments_dict[constants.FILE_SIZE] = file_size
 
     return arguments_dict
@@ -314,7 +314,7 @@ class FtrackAssetInfo(dict):
             mod_date = os.path.getmtime(asset_info_data.get(constants.COMPONENT_PATH))
             file_size = os.path.getsize(asset_info_data.get(constants.COMPONENT_PATH))
 
-        asset_info_data[constants.MOD_DATETIME] = mod_date
+        asset_info_data[constants.MOD_DATE] = mod_date
         asset_info_data[constants.FILE_SIZE] = file_size
 
         return cls(asset_info_data)
