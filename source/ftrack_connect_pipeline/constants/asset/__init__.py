@@ -68,6 +68,18 @@ DEPENDENCY_IDS = 'dependency_ids'
 #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
 #: and the DCC ftrack plugin.
 OBJECTS_LOADED = 'objects_loaded'
+#: Determine if asset info is from a snapshot asset like an uasset. False by default.
+#: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+#: and the DCC ftrack plugin.
+IS_SNAPSHOT = 'is_snapshot'
+#: Modification time of the file.
+#: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+#: and the DCC ftrack plugin.
+MOD_DATE = 'mod_date'
+#: Size of the file.
+#: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+#: and the DCC ftrack plugin.
+FILE_SIZE = 'file_size'
 
 #: Identifier version of the asset constants and plugin.
 VERSION = '1.0'
@@ -91,4 +103,7 @@ KEYS = [
     ASSET_INFO_ID,
     DEPENDENCY_IDS,
     OBJECTS_LOADED,
+    IS_SNAPSHOT,
+    MOD_DATE,
+    FILE_SIZE,
 ]

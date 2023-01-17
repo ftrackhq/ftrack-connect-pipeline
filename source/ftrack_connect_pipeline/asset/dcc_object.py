@@ -41,6 +41,22 @@ class DccObject(dict):
         '''
         self[asset_const.OBJECTS_LOADED] = value
 
+    @property
+    def is_snapshot(self):
+        '''
+        Returns the attribute is_snapshot of the current
+        self :obj:`name`
+        '''
+        return self[asset_const.IS_SNAPSHOT]
+
+    @is_snapshot.setter
+    def is_snapshot(self, value):
+        '''
+        Set the is_snapshot attribute of the self :obj:`name` to the
+        given *value*.
+        '''
+        self[asset_const.IS_SNAPSHOT] = value
+
     def __init__(self, name=None, from_id=None, **kwargs):
         '''
         If the *from_id* is provided find an object in the dcc with the given
