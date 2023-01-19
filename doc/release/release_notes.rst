@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: upcoming
+    .. change:: fix
+
+       Fixed bug were disabled stages and plugins were executed.
+
+
 .. release:: 1.2.0
     .. change:: 2022-12-15
 

@@ -33,7 +33,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         self, asset_version_entity, component_name, component_path
     ):
         '''
-        Creates an ftrack component on the given *asset_version_entity* with the given
+        Creates a ftrack component on the given *asset_version_entity* with the given
         *component_name* pointing to the given *component_path*
 
         *asset_version_entity* : instance of

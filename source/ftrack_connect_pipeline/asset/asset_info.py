@@ -31,20 +31,29 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
 
     arguments_dict = {}
 
+    # Mandatory argument
+    arguments_dict[constants.VERSION_ID] = context_data[constants.VERSION_ID]
+
+    asset_version_entity = session.query(
+        'select version from AssetVersion where id is "{}"'.format(
+            arguments_dict[constants.VERSION_ID]
+        )
+    ).one()
+
     arguments_dict[constants.ASSET_NAME] = context_data.get(
-        'asset_name', 'No name found'
+        'asset_name', asset_version_entity['asset']['name']
     )
     arguments_dict[constants.ASSET_TYPE_NAME] = context_data.get(
-        constants.ASSET_TYPE_NAME, ''
+        constants.ASSET_TYPE_NAME,
+        asset_version_entity['asset']['type']['name'],
     )
     arguments_dict[constants.ASSET_ID] = context_data.get(
-        constants.ASSET_ID, ''
+        constants.ASSET_ID, asset_version_entity['asset']['id']
     )
     arguments_dict[constants.VERSION_NUMBER] = int(
-        context_data.get(constants.VERSION_NUMBER, 0)
-    )
-    arguments_dict[constants.VERSION_ID] = context_data.get(
-        constants.VERSION_ID, ''
+        context_data.get(
+            constants.VERSION_NUMBER, asset_version_entity['version']
+        )
     )
 
     arguments_dict[constants.LOAD_MODE] = options.get(
@@ -56,12 +65,6 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     )
 
     arguments_dict[constants.ASSET_INFO_ID] = uuid.uuid4().hex
-
-    asset_version_entity = session.query(
-        'select version from AssetVersion where id is "{}"'.format(
-            arguments_dict[constants.VERSION_ID]
-        )
-    ).one()
 
     asset_entity = asset_version_entity['asset']
     ancestors = asset_entity['ancestors']
@@ -101,8 +104,12 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
     mod_date = None
     file_size = None
     if arguments_dict.get(constants.COMPONENT_PATH):
-        mod_date = os.path.getmtime(arguments_dict.get(constants.COMPONENT_PATH))
-        file_size = os.path.getsize(arguments_dict.get(constants.COMPONENT_PATH))
+        mod_date = os.path.getmtime(
+            arguments_dict.get(constants.COMPONENT_PATH)
+        )
+        file_size = os.path.getsize(
+            arguments_dict.get(constants.COMPONENT_PATH)
+        )
 
     arguments_dict[constants.MOD_DATE] = mod_date
     arguments_dict[constants.FILE_SIZE] = file_size
@@ -311,8 +318,12 @@ class FtrackAssetInfo(dict):
         mod_date = None
         file_size = None
         if asset_info_data.get(constants.COMPONENT_PATH):
-            mod_date = os.path.getmtime(asset_info_data.get(constants.COMPONENT_PATH))
-            file_size = os.path.getsize(asset_info_data.get(constants.COMPONENT_PATH))
+            mod_date = os.path.getmtime(
+                asset_info_data.get(constants.COMPONENT_PATH)
+            )
+            file_size = os.path.getsize(
+                asset_info_data.get(constants.COMPONENT_PATH)
+            )
 
         asset_info_data[constants.MOD_DATE] = mod_date
         asset_info_data[constants.FILE_SIZE] = file_size

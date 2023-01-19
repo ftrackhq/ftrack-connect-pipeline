@@ -1,10 +1,15 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
-
+import copy
 import logging
 import unicodedata
 import re
-from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
+import os
+
+from ftrack_connect_pipeline.asset.asset_info import (
+    FtrackAssetInfo,
+    generate_asset_info_dict_from_args,
+)
 from ftrack_connect_pipeline.asset.dcc_object import DccObject
 from ftrack_connect_pipeline.constants import asset as asset_const
 
@@ -202,3 +207,79 @@ class FtrackObjectManager(object):
         self.dcc_object = dcc_object
 
         return self.dcc_object
+
+    def generate_snapshot_asset_info_options(
+        self, context_data, data, plugin_name=None, definition=None
+    ):
+        '''
+        Returns a dictionary of options for creating a snapshot asset_info.
+        '''
+        return {
+            "pipeline": {
+                "plugin_name": plugin_name or "unreal_native_loader_importer",
+                "plugin_type": "loader.importer",
+                "method": "init_and_load",
+                "category": "plugin",
+                "host_type": "unreal",
+                "definition": definition or "Asset Loader",
+            },
+            "settings": {
+                "context_data": context_data,
+                "data": data,
+                "options": {"file_formats": [".uasset"]},
+            },
+        }
+
+    def generate_snapshot_asset_info(
+        self,
+        context_data,
+        asset_version_id,
+        component_id,
+        component_name,
+        component_path,
+    ):
+        '''
+        Returns a new :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        '''
+        # TODO: strip down to what is absolutely needed for data and asset info options
+        data = [
+            {
+                "name": "common_context_loader_collector",
+                "options": {"file_formats": [".uasset"]},
+                "result": [component_path],
+                "status": True,
+                "category": "plugin",
+                "type": "collector",
+                "plugin_type": "loader.collector",
+                "method": "run",
+                "user_data": {},
+                "message": "Successfully run :CommonContextLoaderCollectorPlugin",
+                "widget_ref": None,
+                "host_id": None,
+                "plugin_id": None,
+            }
+        ]
+        context_data_merged = copy.deepcopy(context_data)
+        context_data_merged[asset_const.VERSION_ID] = asset_version_id
+        result = FtrackAssetInfo(
+            generate_asset_info_dict_from_args(
+                context_data_merged,
+                data,
+                {asset_const.LOAD_MODE: 'import'},
+                self.session,
+            )
+        )
+        result[
+            asset_const.ASSET_INFO_OPTIONS
+        ] = self.generate_snapshot_asset_info_options(context_data, data)
+        result[asset_const.IS_SNAPSHOT] = True
+        result[asset_const.COMPONENT_ID] = component_id
+        result[asset_const.COMPONENT_NAME] = component_name
+        mod_date = None
+        file_size = None
+        if os.path.exists(component_path):
+            mod_date = os.path.getmtime(component_path)
+            file_size = os.path.getsize(component_path)
+        result[asset_const.MOD_DATE] = mod_date
+        result[asset_const.FILE_SIZE] = file_size
+        return result
