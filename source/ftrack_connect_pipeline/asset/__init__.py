@@ -237,6 +237,7 @@ class FtrackObjectManager(object):
         component_id,
         component_name,
         component_path,
+        local_component_path,
     ):
         '''
         Returns a new :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
@@ -277,9 +278,9 @@ class FtrackObjectManager(object):
         result[asset_const.COMPONENT_NAME] = component_name
         mod_date = None
         file_size = None
-        if os.path.exists(component_path):
-            mod_date = os.path.getmtime(component_path)
-            file_size = os.path.getsize(component_path)
+        if os.path.exists(local_component_path):
+            mod_date = os.path.getmtime(local_component_path)
+            file_size = os.path.getsize(local_component_path)
         result[asset_const.MOD_DATE] = mod_date
         result[asset_const.FILE_SIZE] = file_size
         return result
