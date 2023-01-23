@@ -260,8 +260,10 @@ class FtrackObjectManager(object):
                 "plugin_id": None,
             }
         ]
+        # Append version ID to context data
         context_data_merged = copy.deepcopy(context_data)
         context_data_merged[asset_const.VERSION_ID] = asset_version_id
+        context_data_merged[asset_const.COMPONENT_ID] = component_id
         result = FtrackAssetInfo(
             generate_asset_info_dict_from_args(
                 context_data_merged,
@@ -272,7 +274,9 @@ class FtrackObjectManager(object):
         )
         result[
             asset_const.ASSET_INFO_OPTIONS
-        ] = self.generate_snapshot_asset_info_options(context_data, data)
+        ] = self.generate_snapshot_asset_info_options(
+            context_data_merged, data
+        )
         result[asset_const.IS_SNAPSHOT] = True
         result[asset_const.COMPONENT_ID] = component_id
         result[asset_const.COMPONENT_NAME] = component_name
