@@ -209,24 +209,24 @@ class FtrackObjectManager(object):
         return self.dcc_object
 
     def generate_snapshot_asset_info_options(
-        self, context_data, data, plugin_name=None, definition=None
+        self, context_data, data, loader_options
     ):
         '''
         Returns a dictionary of options for creating a snapshot asset_info.
         '''
         return {
             "pipeline": {
-                "plugin_name": plugin_name or "unreal_native_loader_importer",
-                "plugin_type": "loader.importer",
-                "method": "init_and_load",
+                "plugin_name": loader_options['plugin_name'],
+                "plugin_type": loader_options['plugin_type'],
+                "method": loader_options['method'],
                 "category": "plugin",
                 "host_type": "unreal",
-                "definition": definition or "Asset Loader",
+                "definition": loader_options['definition'],
             },
             "settings": {
                 "context_data": context_data,
                 "data": data,
-                "options": {"file_formats": [".uasset"]},
+                "options": {"file_formats": loader_options['file_formats']},
             },
         }
 
@@ -238,6 +238,7 @@ class FtrackObjectManager(object):
         component_name,
         component_path,
         local_component_path,
+        loader_options,
     ):
         '''
         Returns a new :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
@@ -246,7 +247,7 @@ class FtrackObjectManager(object):
         data = [
             {
                 "name": "common_context_loader_collector",
-                "options": {"file_formats": [".uasset"]},
+                "options": {"file_formats": loader_options['file_formats']},
                 "result": [component_path],
                 "status": True,
                 "category": "plugin",
@@ -254,7 +255,6 @@ class FtrackObjectManager(object):
                 "plugin_type": "loader.collector",
                 "method": "run",
                 "user_data": {},
-                "message": "Successfully run :CommonContextLoaderCollectorPlugin",
                 "widget_ref": None,
                 "host_id": None,
                 "plugin_id": None,
@@ -275,7 +275,7 @@ class FtrackObjectManager(object):
         result[
             asset_const.ASSET_INFO_OPTIONS
         ] = self.generate_snapshot_asset_info_options(
-            context_data_merged, data
+            context_data_merged, data, loader_options
         )
         result[asset_const.IS_SNAPSHOT] = True
         result[asset_const.COMPONENT_ID] = component_id
