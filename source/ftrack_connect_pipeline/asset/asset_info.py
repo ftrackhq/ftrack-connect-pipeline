@@ -142,9 +142,16 @@ class FtrackAssetInfo(dict):
 
     @classmethod
     def create(
-            cls, asset_version_entity, component_name, component_path=None,
-            component_id=None, load_mode=None, asset_info_options=None,
-            objects_loaded=False, is_snapshot=False, reference_object=None
+        cls,
+        asset_version_entity,
+        component_name,
+        component_path=None,
+        component_id=None,
+        load_mode=None,
+        asset_info_options=None,
+        objects_loaded=False,
+        is_snapshot=False,
+        reference_object=None,
     ):
         '''
         Returns an :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` object
@@ -188,7 +195,9 @@ class FtrackAssetInfo(dict):
             for component in asset_version_entity['components']:
                 if component['name'] == component_name:
                     if location.get_component_availability(component) == 100.0:
-                        component_path = location.get_filesystem_path(component)
+                        component_path = location.get_filesystem_path(
+                            component
+                        )
                         if component_path:
                             component_id = component['id']
                             break
@@ -200,27 +209,28 @@ class FtrackAssetInfo(dict):
             constants.VERSION_ID: asset_version_entity['id'],
             constants.ASSET_ID: asset_version_entity['asset']['id'],
             constants.VERSION_NUMBER: int(asset_version_entity['version']),
-            constants.IS_LATEST_VERSION: asset_version_entity[constants.IS_LATEST_VERSION],
+            constants.IS_LATEST_VERSION: asset_version_entity[
+                constants.IS_LATEST_VERSION
+            ],
             constants.DEPENDENCY_IDS: [
                 dependency['id']
                 for dependency in asset_version_entity['uses_versions']
             ],
-
             constants.LOAD_MODE: load_mode or 'Not Set',
-            constants.ASSET_INFO_OPTIONS: asset_info_options or  '',
+            constants.ASSET_INFO_OPTIONS: asset_info_options or '',
             constants.OBJECTS_LOADED: objects_loaded,
             constants.IS_SNAPSHOT: is_snapshot,
             constants.REFERENCE_OBJECT: reference_object or '',
-
             constants.CONTEXT_PATH: context_path,
-
             constants.COMPONENT_NAME: component_name,
             constants.COMPONENT_ID: component_id,
             constants.COMPONENT_PATH: component_path,
-
-            constants.MOD_DATE: os.path.getmtime(component_path) if component_path else None,
-            constants.FILE_SIZE: os.path.getsize(component_path) if component_path else None,
+            constants.MOD_DATE: os.path.getmtime(component_path)
+            if component_path
+            else None,
+            constants.FILE_SIZE: os.path.getsize(component_path)
+            if component_path
+            else None,
         }
 
         return cls(asset_info_data)
-
