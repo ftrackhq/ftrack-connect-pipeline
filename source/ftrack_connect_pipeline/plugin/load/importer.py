@@ -118,7 +118,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         result = {
             'asset_info': self.asset_info,
             'dcc_object': self.dcc_object,
-            'run_result': run_result,
+            'result': run_result,
         }
 
         return result
