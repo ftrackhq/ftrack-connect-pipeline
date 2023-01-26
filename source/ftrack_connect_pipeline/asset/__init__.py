@@ -246,7 +246,7 @@ class FtrackObjectManager(object):
         data = [
             {
                 "name": "common_context_loader_collector",
-                "options": {"file_formats": loader_options['file_formats']},
+                "options": {},
                 "result": [component_path],
                 "status": True,
                 "category": "plugin",
