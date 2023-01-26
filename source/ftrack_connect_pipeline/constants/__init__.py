@@ -121,6 +121,7 @@ PIPELINE_CLIENT_CONTEXT_CHANGE = '{}.client.context.change'.format(_BASE_)
 SNAPSHOT_COMPONENT_NAME = 'snapshot'
 FTRACKREVIEW_COMPONENT_NAME = 'ftrackreview'
 PIPELINE_METADATA_KEY = 'pipeline-framework'
+PIPELINE_ASSET_INFO_METADATA_KEY = 'pipeline_asset_info'
 
 # Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.plugin.load import *

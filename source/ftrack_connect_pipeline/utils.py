@@ -1,11 +1,23 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import os
 import appdirs
 import tempfile
 import six
+import json
 
 from ftrack_connect_pipeline import constants as core_constants
+
+
+def load_pipeline_metadata(entity):
+    if (
+        'metadata' in entity
+        and core_constants.PIPELINE_METADATA_KEY in entity['metadata']
+    ):
+        return json.loads(
+            entity['metadata'][core_constants.PIPELINE_METADATA_KEY]
+        )
+    return None
 
 
 def str_context(context, delimiter='/'):

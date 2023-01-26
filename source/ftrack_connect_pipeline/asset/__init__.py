@@ -217,7 +217,6 @@ class FtrackObjectManager(object):
         return {
             "pipeline": {
                 "plugin_name": loader_options['plugin_name'],
-                "plugin_type": loader_options['plugin_type'],
                 "method": loader_options['method'],
                 "category": "plugin",
                 "host_type": "unreal",
@@ -226,7 +225,7 @@ class FtrackObjectManager(object):
             "settings": {
                 "context_data": context_data,
                 "data": data,
-                "options": {"file_formats": loader_options['file_formats']},
+                "options": {},
             },
         }
 
