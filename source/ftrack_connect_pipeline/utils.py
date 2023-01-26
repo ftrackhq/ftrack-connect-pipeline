@@ -36,14 +36,14 @@ def str_version(
     delimiter='/',
 ):
     '''Utility function to produce a human-readable string out of *asset_version*.'''
-    return '{}/{}/assetversion{}{}'.format(
+    return '{}/{}/{}{}'.format(
         str_context(
             assetversion['task']
             if by_task
             else assetversion['asset']['parent']
         ),
         assetversion['asset']['name'],
-        force_version_nr or assetversion['version'],
+        'v%d' % (force_version_nr or assetversion['version']),
         ('({})'.format(assetversion['id']) if with_id else ''),
     ).replace('/', delimiter)
 
