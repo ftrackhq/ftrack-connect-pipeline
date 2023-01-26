@@ -153,6 +153,7 @@ class FtrackAssetInfo(dict):
         objects_loaded=False,
         is_snapshot=False,
         reference_object=None,
+        snapshot_component_path=None,
     ):
         '''
         Returns an :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` object
@@ -175,6 +176,8 @@ class FtrackAssetInfo(dict):
         *is_snapshot* : Is snapshot
 
         *reference_object* : Reference object
+
+        *snapshot_component_path* : The local path of the snapshot component
 
         '''
 
@@ -203,10 +206,14 @@ class FtrackAssetInfo(dict):
                             component_id = component['id']
                             break
 
+        if snapshot_component_path is None:
+            snapshot_component_path = component_path
         asset_info_data = {
             constants.ASSET_INFO_ID: uuid.uuid4().hex,
             constants.ASSET_NAME: asset_version_entity['asset']['name'],
-            constants.ASSET_TYPE_NAME: asset_version_entity['type']['name'],
+            constants.ASSET_TYPE_NAME: asset_version_entity['asset']['type'][
+                'name'
+            ],
             constants.VERSION_ID: asset_version_entity['id'],
             constants.ASSET_ID: asset_version_entity['asset']['id'],
             constants.VERSION_NUMBER: int(asset_version_entity['version']),
@@ -226,11 +233,13 @@ class FtrackAssetInfo(dict):
             constants.COMPONENT_NAME: component_name,
             constants.COMPONENT_ID: component_id,
             constants.COMPONENT_PATH: component_path,
-            constants.MOD_DATE: os.path.getmtime(component_path)
-            if component_path
+            constants.MOD_DATE: os.path.getmtime(snapshot_component_path)
+            if snapshot_component_path
+            and os.path.exists(snapshot_component_path)
             else None,
-            constants.FILE_SIZE: os.path.getsize(component_path)
-            if component_path
+            constants.FILE_SIZE: os.path.getsize(snapshot_component_path)
+            if snapshot_component_path
+            and os.path.exists(snapshot_component_path)
             else None,
         }
 
