@@ -204,3 +204,4 @@ class FtrackObjectManager(object):
         self.dcc_object = dcc_object
 
         return self.dcc_object
+
