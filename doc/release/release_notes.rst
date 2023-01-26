@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
     .. change:: changed
+        :tags: collector
+
+        Common loader and opener collector return value changed from list to dictionary
+
+    .. change:: changed
         :tags: asset_info
 
         Asset info has now a create method.
