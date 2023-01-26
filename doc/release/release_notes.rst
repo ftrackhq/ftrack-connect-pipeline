@@ -8,13 +8,18 @@ Release Notes
 *************
 
 .. release:: upcoming
+    .. change:: changed
+        :tags: asset_info
+
+        Asset info has now a create method.
+
     .. change:: fix
 
        Fixed bug were disabled stages and plugins were executed.
 
-
 .. release:: 1.2.0
     .. change:: 2022-12-15
+    .. change:: new
 
         Client multithreaded property, as part of 3ds Max integration.
 
