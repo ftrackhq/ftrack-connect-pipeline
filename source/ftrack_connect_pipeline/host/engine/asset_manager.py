@@ -622,7 +622,8 @@ class AssetManagerEngine(BaseEngine):
             asset_type_name = asset_entity['type']['name']
             version_id = asset_version_entity['id']
             location = asset_version_entity.session.pick_location()
-            component_path = component_id = None
+            component_path = None
+            component_id = None
             for component in asset_version_entity['components']:
                 if component['name'] == component_name:
                     component_id = component['id']
