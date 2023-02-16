@@ -43,9 +43,16 @@ def on_launch_pipeline(session, event):
     definitions_plugin_hook = os.getenv("FTRACK_DEFINITION_PLUGIN_PATH")
     plugin_hook = os.path.join(definitions_plugin_hook, 'common', 'python')
 
+    core_definitions_path = os.path.join(
+        plugin_base_dir, 'resource', 'definitions'
+    )
+
     pipeline_base_data['integration']['env'] = {
         'PYTHONPATH.prepend': python_dependencies,
-        'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
+        'FTRACK_EVENT_PLUGIN_PATH.prepend': os.path.pathsep.join(
+            [plugin_hook, core_definitions_path]
+        ),
+        'FTRACK_DEFINITION_PATH.prepend': core_definitions_path,
     }
 
     return pipeline_base_data
