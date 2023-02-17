@@ -62,10 +62,8 @@ class BaseDefinition(object):
 
     def register_definitions(self, event):
         host_types = event['data']['pipeline']['host_types']
-        definition_paths = os.getenv("FTRACK_DEFINITION_PATH").split(os.pathsep)
-        data = {
-            "host_types": host_types,
-            "definition_paths": definition_paths
-        }
+        definition_paths = os.getenv("FTRACK_DEFINITION_PATH").split(
+            os.pathsep
+        )
+        data = {"host_types": host_types, "definition_paths": definition_paths}
         return data
-

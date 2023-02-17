@@ -23,4 +23,3 @@ def register(api_object, **kw):
 
     definition = BaseDefinition(api_object)
     definition.register()
-

@@ -48,7 +48,9 @@ def on_launch_pipeline(session, event):
         plugin_base_dir, 'resource', 'bootstrap'
     )
 
-    pipeline_bootstrap_plugin_path = os.path.join(pipeline_bootstrap_path, 'plugins')
+    pipeline_bootstrap_plugin_path = os.path.join(
+        pipeline_bootstrap_path, 'plugins'
+    )
 
     core_definitions_path = os.path.join(
         plugin_base_dir, 'resource', 'definitions'

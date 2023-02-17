@@ -64,8 +64,16 @@ def collect_definitions(definition_paths):
         'asset_manager': [],
     }
     for lookup_dir in definition_paths:
-        for file_type in ['schema', 'loader', 'opener', 'publisher', 'asset_manager']:
-            collected_files = _collect_json(os.path.join(lookup_dir, file_type))
+        for file_type in [
+            'schema',
+            'loader',
+            'opener',
+            'publisher',
+            'asset_manager',
+        ]:
+            collected_files = _collect_json(
+                os.path.join(lookup_dir, file_type)
+            )
             data[file_type].extend(collected_files)
             logger.debug(
                 'Found {} definitions in path: {}'.format(

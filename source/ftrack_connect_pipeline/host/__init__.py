@@ -224,10 +224,14 @@ class Host(object):
         )
 
         # resolve schemas
-        discovered_definitions = collect.resolve_schemas(discovered_definitions)
+        discovered_definitions = collect.resolve_schemas(
+            discovered_definitions
+        )
 
         # validate_plugins
-        validated_result = self.validate_definition_plugins(discovered_definitions)
+        validated_result = self.validate_definition_plugins(
+            discovered_definitions
+        )
 
         end = time.time()
         logger.debug('Discover definitions run in: {}s'.format((end - start)))
