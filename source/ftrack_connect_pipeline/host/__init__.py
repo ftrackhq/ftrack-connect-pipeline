@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import uuid
 import ftrack_api
@@ -208,6 +208,10 @@ class Host(object):
         self.logger.debug('host {} ready.'.format(self.host_id))
 
     def collect_and_validate_definitions(self, definition_paths, host_types):
+        '''
+        Collects all json files from the given *definition_paths* that match
+        the given *host_types*
+        '''
         start = time.time()
 
         # collect definitions

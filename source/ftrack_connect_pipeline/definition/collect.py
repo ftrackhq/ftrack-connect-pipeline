@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import json
 import fnmatch
@@ -52,9 +52,9 @@ def filter_definitions_by_host(data, host_types):
 def collect_definitions(definition_paths):
     '''
     Collect all the schemas and definitions from the given
-    *lookup_dir*
+    *definition_paths*
 
-    *lookup_dir* : Directory path to look for the definitions.
+    *definition_paths* : Directory path to look for the definitions.
     '''
     data = {
         'schema': [],

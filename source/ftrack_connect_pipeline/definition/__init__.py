@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import uuid
@@ -32,15 +32,13 @@ class BaseDefinition(object):
 
     def __init__(self, session):
         '''
-        Initialise BasePlugin with instance of
+        Initialise BaseDefinition with instance of
         :class:`ftrack_api.session.Session`
         '''
 
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-
-        self.definition_id = uuid.uuid4().hex
 
         self._raw_data = []
         self._method = []
@@ -49,6 +47,10 @@ class BaseDefinition(object):
         )
 
     def register(self):
+        '''
+        Register the definition subscribing to the
+        PIPELINE_REGISTER_TOPIC event
+        '''
         if not isinstance(self.session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
             return
@@ -61,6 +63,10 @@ class BaseDefinition(object):
         )
 
     def register_definitions(self, event):
+        '''
+        Callback method that returns the registred host_types and
+        definition_paths of the discovered definitions
+        '''
         host_types = event['data']['pipeline']['host_types']
         definition_paths = os.getenv("FTRACK_DEFINITION_PATH").split(
             os.pathsep
