@@ -48,11 +48,20 @@ def on_launch_pipeline(session, event):
         plugin_base_dir, 'resource', 'bootstrap'
     )
 
-    pipeline_bootstrap_plugin_path = os.path.join(pipeline_bootstrap_path, 'plugins')
+    pipeline_bootstrap_plugin_path = os.path.join(
+        pipeline_bootstrap_path, 'plugins'
+    )
+
+    core_definitions_path = os.path.join(
+        plugin_base_dir, 'resource', 'definitions'
+    )
 
     pipeline_base_data['integration']['env'] = {
         'PYTHONPATH.prepend': python_dependencies,
-        'FTRACK_EVENT_PLUGIN_PATH.prepend': pipeline_plugins_path,
+        'FTRACK_EVENT_PLUGIN_PATH.prepend': os.path.pathsep.join(
+            [pipeline_plugins_path, core_definitions_path]
+        ),
+        'FTRACK_DEFINITION_PATH.prepend': core_definitions_path,
     }
 
     return pipeline_base_data
