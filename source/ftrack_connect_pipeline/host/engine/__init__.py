@@ -667,11 +667,9 @@ class BaseEngine(object):
             if step_group == constants.CONTEXTS:
                 context_latest_step = group_results[-1]
                 context_latest_stage = context_latest_step.get('result')[-1]
-                context_latest_plugin = context_latest_stage.get('result')[-1]
-                context_latest_plugin_result = context_latest_plugin.get(
-                    'result'
-                )
-                context_data = context_latest_plugin_result
+                context_data = {}
+                for context_plugin in context_latest_stage.get('result'):
+                    context_data.update(context_plugin.get('result'))
 
             elif step_group == constants.COMPONENTS:
                 components_output = copy.deepcopy(group_results)
