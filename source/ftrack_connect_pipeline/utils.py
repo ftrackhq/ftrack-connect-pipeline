@@ -50,6 +50,8 @@ def str_version(
 
 def safe_string(object):
     '''Make a string out of *object*, by first decoding if byte or unicode string'''
+    if six.PY2 and isinstance(object, unicode):
+        return object.encode('utf-8')
     if isinstance(object, bytes):
         return object.decode("utf-8")
     return str(object)
