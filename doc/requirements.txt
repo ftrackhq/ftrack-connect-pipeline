@@ -2,3 +2,4 @@ sphinx
 sphinx_rtd_theme
 lowdown
 setuptools_scm
+pre-commit
