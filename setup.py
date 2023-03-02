@@ -132,7 +132,7 @@ setup(
         'setuptools>=44.0.0',
         'setuptools_scm',
         'Jinja2<3.1',
-        'pre-commit',
+        'black==23.1.0' 'pre-commit',
     ],
     install_requires=[
         'ftrack-python-api >= 1, < 3',  # == 2.0RC1
