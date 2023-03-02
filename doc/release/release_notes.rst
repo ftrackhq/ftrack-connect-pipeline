@@ -8,6 +8,12 @@ Release Notes
 *************
 
 .. release:: upcoming
+    .. change:: new
+        :tags: github,black
+
+        Added github action checking if code has been properly black formatted.
+        Added git black pre commit hook
+
     .. change:: changed
         :tags: definitions
 
