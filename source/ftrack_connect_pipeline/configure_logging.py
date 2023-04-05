@@ -72,7 +72,7 @@ def configure_logging(
     extra_modules = extra_modules or []
 
     # Cast to list in case is a tuple.
-    modules = []
+    modules = [logger_name]
     modules.extend(list(extra_modules))
 
     extra_handlers = extra_handlers or {}
