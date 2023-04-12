@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: upcoming
+
+    .. change:: changed
+        :tags: finalizer
+
+        Support for alternate asset parent id supplied in context data.
+
+
 .. release:: 1.3.0
     .. date:: 2023-04-05
 
