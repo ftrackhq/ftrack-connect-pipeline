@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ftrack_connect_pipeline.plugin.base &mdash; ftrack-connect-pipeline Unknown version documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ftrack_connect_pipeline.plugin.open" href="ftrack_connect_pipeline.plugin.open.html" />
+    <link rel="prev" title="ftrack_connect_pipeline.plugin.asset_manager" href="ftrack_connect_pipeline.plugin.asset_manager.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ftrack-connect-pipeline
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developing/index.html">Developing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../standalone/index.html">Standalone</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ftrack_connect_pipeline.html">ftrack_connect_pipeline</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ftrack_connect_pipeline.asset.html">ftrack_connect_pipeline.asset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_connect_pipeline.client.html">ftrack_connect_pipeline.client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_connect_pipeline.constants.html">ftrack_connect_pipeline.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_connect_pipeline.definition.html">ftrack_connect_pipeline.definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_connect_pipeline.host.html">ftrack_connect_pipeline.host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_connect_pipeline.log.html">ftrack_connect_pipeline.log</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="ftrack_connect_pipeline.plugin.html">ftrack_connect_pipeline.plugin</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="ftrack_connect_pipeline.plugin.asset_manager.html">ftrack_connect_pipeline.plugin.asset_manager</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">ftrack_connect_pipeline.plugin.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ftrack_connect_pipeline.plugin.open.html">ftrack_connect_pipeline.plugin.open</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ftrack_connect_pipeline.plugin.load.html">ftrack_connect_pipeline.plugin.load</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ftrack_connect_pipeline.plugin.publish.html">ftrack_connect_pipeline.plugin.publish</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_connect_pipeline.html#ftrack-connect-pipeline-configure-logging">ftrack_connect_pipeline.configure_logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_connect_pipeline.html#ftrack-connect-pipeline-event">ftrack_connect_pipeline.event</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_connect_pipeline.html#ftrack-connect-pipeline-exception">ftrack_connect_pipeline.exception</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_connect_pipeline.html#ftrack-connect-pipeline-utils">ftrack_connect_pipeline.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ftrack-connect-pipeline</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="ftrack_connect_pipeline.html">ftrack_connect_pipeline</a></li>
+          <li class="breadcrumb-item"><a href="ftrack_connect_pipeline.plugin.html">ftrack_connect_pipeline.plugin</a></li>
+      <li class="breadcrumb-item active">ftrack_connect_pipeline.plugin.base</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api_references/ftrack_connect_pipeline.plugin.base.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ftrack-connect-pipeline-plugin-base">
+<h1>ftrack_connect_pipeline.plugin.base<a class="headerlink" href="#ftrack-connect-pipeline-plugin-base" title="Permalink to this heading">¶</a></h1>
+<section id="ftrack-connect-pipeline-plugin-base-action">
+<h2>ftrack_connect_pipeline.plugin.base.action<a class="headerlink" href="#ftrack-connect-pipeline-plugin-base-action" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="ftrack-connect-pipeline-plugin-base-collector">
+<h2>ftrack_connect_pipeline.plugin.base.collector<a class="headerlink" href="#ftrack-connect-pipeline-plugin-base-collector" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="ftrack-connect-pipeline-plugin-base-context">
+<h2>ftrack_connect_pipeline.plugin.base.context<a class="headerlink" href="#ftrack-connect-pipeline-plugin-base-context" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="ftrack-connect-pipeline-plugin-base-discover">
+<h2>ftrack_connect_pipeline.plugin.base.discover<a class="headerlink" href="#ftrack-connect-pipeline-plugin-base-discover" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="ftrack-connect-pipeline-plugin-base-finalizer">
+<h2>ftrack_connect_pipeline.plugin.base.finalizer<a class="headerlink" href="#ftrack-connect-pipeline-plugin-base-finalizer" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="ftrack-connect-pipeline-plugin-base-importer">
+<h2>ftrack_connect_pipeline.plugin.base.importer<a class="headerlink" href="#ftrack-connect-pipeline-plugin-base-importer" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="ftrack-connect-pipeline-plugin-base-exporter">
+<h2>ftrack_connect_pipeline.plugin.base.exporter<a class="headerlink" href="#ftrack-connect-pipeline-plugin-base-exporter" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="ftrack-connect-pipeline-plugin-base-post-import">
+<h2>ftrack_connect_pipeline.plugin.base.post_import<a class="headerlink" href="#ftrack-connect-pipeline-plugin-base-post-import" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="ftrack-connect-pipeline-plugin-base-validator">
+<h2>ftrack_connect_pipeline.plugin.base.validator<a class="headerlink" href="#ftrack-connect-pipeline-plugin-base-validator" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ftrack_connect_pipeline.plugin.asset_manager.html" class="btn btn-neutral float-left" title="ftrack_connect_pipeline.plugin.asset_manager" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ftrack_connect_pipeline.plugin.open.html" class="btn btn-neutral float-right" title="ftrack_connect_pipeline.plugin.open" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
