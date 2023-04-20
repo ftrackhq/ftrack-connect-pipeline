@@ -79,16 +79,16 @@ class EventManager(object):
             self.session.event_hub.connect()
 
     def _wait(self):
-        for thread in threading.enumerate():
-            if thread.getName() == str(hash(self.session)):
-                self._event_hub_thread = thread
-                break
+        # for thread in threading.enumerate():
+        #    if thread.getName() == str(hash(self.session)):
+        #        self._event_hub_thread = thread
+        #        self.logger.debug('Re-using existing hub thread: {}'.format(thread))
+        #        break
         if not self._event_hub_thread:
-            # self.logger.debug('Initializing new hub thread {}'.format(self))
+            self.logger.debug('Initializing new hub thread {}'.format(self))
             self._event_hub_thread = _EventHubThread(self.session)
-
         if not self._event_hub_thread.is_alive():
-            # self.logger.debug('Starting new hub thread for {}'.format(self))
+            self.logger.debug('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start()
 
     def __init__(self, session, mode=constants.LOCAL_EVENT_MODE):
@@ -99,7 +99,6 @@ class EventManager(object):
         self._mode = mode
         self._session = session
         if mode == constants.REMOTE_EVENT_MODE:
-            # TODO: Bring this back when API event hub properly can differentiate between local and remote mode
             self._connect()
             self._wait()
 
@@ -109,13 +108,7 @@ class EventManager(object):
         '''Emit *event* and provide *callback* function.'''
 
         mode = mode or self.mode
-        # self.logger.debug(
-        #     'Publishing event topic {} in {} mode'.format(
-        #         event.get('topic'), mode
-        #     )
-        # )
         if mode is constants.LOCAL_EVENT_MODE:
-
             result = self.session.event_hub.publish(
                 event,
                 synchronous=True,
